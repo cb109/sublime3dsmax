@@ -1,13 +1,20 @@
 ############################################################################
 #
-# Completely based on m2u: http://alfastuff.wordpress.com/2013/10/13/m2u/
-# and figured out by the amazing: http://alfastuff.wordpress.com/
+#   This module finds 3ds Max and the MAXScript Listener and can
+#   send strings and button strokes to it.
+#
+#   Completely based on m2u: http://alfastuff.wordpress.com/2013/10/13/m2u/
+#   and figured out by the amazing Johannes: http://alfastuff.wordpress.com/
 #
 ############################################################################
 
 # keeps all the required UI elements of the Max and talks to them
 import ctypes #required for windows ui stuff
 import threading
+
+MAX_TITLE_IDENTIFIER = r"Autodesk 3ds Max"
+
+MAX_NOT_FOUND = r"Sublime3dsMax: Could not find a 3ds max instance."
 
 # UI element window handles
 gMaxThreadProcessID = None
@@ -171,7 +178,8 @@ def _getWindows(hwnd, lParam):
         length = GetWindowTextLength(hwnd)
         buff = ctypes.create_unicode_buffer(length + 1)
         GetWindowText(hwnd, buff, length + 1)
-        if "3ds Max" in buff.value:
+        global MAX_TITLE_IDENTIFIER
+        if MAX_TITLE_IDENTIFIER in buff.value:
             global gMainWindow, gMaxThreadProcessID
             gMainWindow = hwnd
             attachThreads(gMainWindow)
@@ -189,22 +197,13 @@ def connectToMax():
     global gMainWindow
     EnumWindows(EnumWindowsProc(_getWindows), 0)
     if gMainWindow is None:
-        print "Could not find a 3ds max instance."
+        print MAX_NOT_FOUND
     return (gMainWindow is not None)
 
-def fireMaxCommand(command):
+def fireCommand(command):
     """Executes the command string in Max.
     ';' at end needed for ReturnKey to be accepted."""
     global gMiniListener
     SendMessage(gMiniListener, WM_SETTEXT, 0, str(command) )
     SendMessage(gMiniListener, WM_CHAR, VK_RETURN, 0)
 
-def sendFile(file):
-    connectToMax() # Always connect first
-    global gMiniListener
-    if gMiniListener:
-        cmd = r'fileIn (@"%s");' % file
-        fireMaxCommand(cmd)
-        gMiniListener = None # Reset for next reconnect
-    else:
-        print "Could not find MAXScript Listener."

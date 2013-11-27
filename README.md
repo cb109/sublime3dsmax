@@ -32,9 +32,11 @@ How to setup in Sublime
 ----------------------------------
 1. Edit your **Key Bindings - User** file and bind to any key you like (I mimic the MAXScript Listener keys here):
 
-```{ "keys": ["ctrl+e"], "command": "send_file_to_max" },\n
-{ "keys": ["shift+enter"], "command": "send_selection_to_max"}```
+```{ "keys": ["ctrl+e"], "command": "send_file_to_max" }```
+
+```{ "keys": ["shift+enter"], "command": "send_selection_to_max"}```
 
 Hope you like it.
+
 
 Author: [www.cbuelter.de](http://www.cbuelter.de "www.cbuelter.de")

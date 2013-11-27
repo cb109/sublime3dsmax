@@ -11,7 +11,7 @@ complicated stuff! Check out his tools and scripts on his website!**
 
 How to install using Sublime Package Control
 ------------------
-If you don't have Package Control installed, get it here: [Package Control](https://sublime.wbond.net/installation#st2 "https://sublime.wbond.net/installation#st2"))
+If you don't have Package Control installed, get it here: [Package Control](https://sublime.wbond.net/installation#st2 "https://sublime.wbond.net/installation#st2")
 
 1. In Sublime start *Package Control -> Install Package*
 2. Search for *Sublime3dsMax* and hit Enter to install
@@ -19,7 +19,7 @@ If you don't have Package Control installed, get it here: [Package Control](http
 How to install manually
 ------------------
 1. Download the repository
-2. In Sublime Text 2 or 3, go to *Preferences -> Browse Packages*
+2. In Sublime Text go to *Preferences -> Browse Packages*
 3. Create a folder named *Sublime3dsMax*
 4. Extract the contents to the folder
 5. Restart Sublime
@@ -27,7 +27,7 @@ How to install manually
 How to setup in Sublime
 ------------------
 There are two available commands: **send_file_to_max** and **send_selection_to_max**.
-Sending files will check if they are maxscript files.
+Sending files will check if they are maxscript files (*.ms, *.mcr).
 
 Edit your **Key Bindings - User** file and bind to any key you like (I mimic the MAXScript Listener keys here):
 

@@ -1,0 +1,4 @@
+[
+    { "keys": ["ctrl+e"], "command": "send_file_to_max" },
+    { "keys": ["shift+enter"], "command": "send_selection_to_max"}
+]

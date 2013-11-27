@@ -1,7 +1,7 @@
 Using Sublime for MAXScript Development
 ================
 
-**Sends MAXScript files or selected lines to the 3ds Max Listener.**
+**Sends MAXScript files or selected lines to 3ds Max.**
 
 Benefit from Sublime as an editor without having to enter 3ds Max everytime you want to evaluate some code. Best used on a split- or two-monitor setup. The plugin works by iterating all opened windows and searching for "Autodesk 3ds Max" to find the MAXScript Listener handle, that then gets pasted the code or import command.
 
@@ -14,7 +14,7 @@ How to install using Sublime Package Control
 If you don't have Package Control installed, get it here: [Package Control](https://sublime.wbond.net/installation#st2 "https://sublime.wbond.net/installation#st2")
 
 1. In Sublime start *Package Control -> Install Package*
-2. Search for *Sublime3dsMax* and hit Enter to install
+2. Search for *Send to 3ds Max* or *Sublime3dsMax* and hit Enter to install
 
 How to install manually
 ------------------
@@ -27,9 +27,10 @@ How to install manually
 How to setup in Sublime
 ------------------
 There are two available commands: **send_file_to_max** and **send_selection_to_max**.
-Sending files will check if they are maxscript files (*.ms, *.mcr).
+Sending files will check if they are valid maxscript files (*.ms, *.mcr).
 
-Edit your **Key Bindings - User** file and bind to any key you like (I mimic the MAXScript Listener keys here):
+The following keys should be added automatically after package installation.
+To change them, edit your **Key Bindings - User** file and bind to any key you like (I mimic the MAXScript Listener keys here):
 
 ```{ "keys": ["ctrl+e"], "command": "send_file_to_max" }```
 

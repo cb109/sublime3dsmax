@@ -6,6 +6,12 @@
 #   Completely based on m2u: http://alfastuff.wordpress.com/2013/10/13/m2u/
 #   and figured out by the amazing Johannes: http://alfastuff.wordpress.com/
 #
+#   Known issues: EnumPos for childwindows changes,
+#   e.g. if using create mode or hierarchy mode.
+#   Current workaround is to use the first handle
+#   that matches cls="MXS_Scintilla", which is the
+#   mini macro recorder, to paste text into.
+#
 ############################################################################
 
 # keeps all the required UI elements of the Max and talks to them
@@ -14,12 +20,9 @@ import threading
 
 MAX_TITLE_IDENTIFIER = r"Autodesk 3ds Max"
 
-MAX_NOT_FOUND = r"Sublime3dsMax: Could not find a 3ds max instance."
-
 # UI element window handles
 gMaxThreadProcessID = None
 gMainWindow = None
-gMiniListener = None
 gMiniMacroRecorder = None
 
 # windows functions and constants
@@ -122,8 +125,18 @@ def getChildWindowByName(hwnd, name = None, cls = None):
     """
     param = ThreadWinLParm(name=name,cls=cls,_enum=-1)
     lParam = ctypes.byref(param)
-    EnumChildWindows( hwnd, EnumWindowsProc(_getChildWindowByName),lParam)
+    EnumChildWindows(hwnd, EnumWindowsProc(_getChildWindowByName),lParam)
+    print param._enum
     return param.hwnd
+
+def getMXSMiniMacroRecorder():
+    """convenience function
+    """
+    # The function will return the first param that matches the class name.
+    # Thankfully, this is the MAXScript Mini Listener.
+    global gMainWindow
+    miniMacroRecorderHandle = getChildWindowByName(gMainWindow, name=None, cls="MXS_Scintilla")
+    return miniMacroRecorderHandle
 
 def _getChildWindowByEnumPos(hwnd, lParam):
     """ callback function, see :func:`getChildWindowByEnumPos` """
@@ -184,26 +197,21 @@ def _getWindows(hwnd, lParam):
             gMainWindow = hwnd
             attachThreads(gMainWindow)
 
-            # TODO check enums for "MXS_Scintilla"
-            #mxs_children = getChildWindowByName(gMainWindow, name=None, cls="MXS_Scintilla")
-
-            global gMiniListener, gMiniMacroRecorder
-            gMiniListener = getChildWindowByEnumPos(gMainWindow, 377)
-            gMiniMacroRecorder = getChildWindowByEnumPos(gMainWindow, 378)
+            # Find MAXScript Mini Listener
+            global gMiniMacroRecorder
+            gMiniMacroRecorder = getMXSMiniMacroRecorder()
             return False
     return True
 
 def connectToMax():
     global gMainWindow
     EnumWindows(EnumWindowsProc(_getWindows), 0)
-    if gMainWindow is None:
-        print MAX_NOT_FOUND
     return (gMainWindow is not None)
 
 def fireCommand(command):
     """Executes the command string in Max.
     ';' at end needed for ReturnKey to be accepted."""
-    global gMiniListener
-    SendMessage(gMiniListener, WM_SETTEXT, 0, str(command) )
-    SendMessage(gMiniListener, WM_CHAR, VK_RETURN, 0)
+    global gMiniMacroRecorder
+    SendMessage(gMiniMacroRecorder, WM_SETTEXT, 0, str(command) )
+    SendMessage(gMiniMacroRecorder, WM_CHAR, VK_RETURN, 0)
 

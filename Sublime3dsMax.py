@@ -4,9 +4,12 @@ import tomax
 
 TEMP = os.path.join(os.path.dirname(os.path.realpath(__file__)), "temp.ms")
 
-LISTENER_NOT_FOUND = r"Sublime3dsMax: Could not find MAXScript Listener"
+
 NO_MXS_FILE = r"Sublime3dsMax: File is not a MAXScript file (*.ms, *.mcr)"
 NO_TEMP = r"Sublime3dsMax: Could not write to temp file"
+NOT_SAVED = r"Sublime3dsMax: File must be saved before sending to 3ds Max"
+MAX_NOT_FOUND = r"Sublime3dsMax: Could not find a 3ds max instance."
+RECORDER_NOT_FOUND = r"Sublime3dsMax: Could not find MAXScript Macro Recorder"
 
 def isMaxscriptFile(file):
     name, ext = os.path.splitext(file)
@@ -16,12 +19,14 @@ def isMaxscriptFile(file):
         return False
 
 def sendCmdToMax(cmd):
-    tomax.connectToMax() # Always connect first
-    if tomax.gMiniListener:
+    if not tomax.connectToMax(): # Always connect first
+        sublime.error_message(MAX_NOT_FOUND)
+        return
+    if tomax.gMiniMacroRecorder:
         tomax.fireCommand(cmd)
-        tomax.gMiniListener = None # Reset for next reconnect
+        tomax.gMiniMacroRecorder = None # Reset for next reconnect
     else:
-        print LISTENER_NOT_FOUND
+        sublime.error_message(RECORDER_NOT_FOUND)
 
 def saveToTemp(text):
     global TEMP
@@ -35,12 +40,15 @@ class SendFileToMaxCommand(sublime_plugin.TextCommand):
     """
     def run(self, edit):
         currentfile = self.view.file_name()
+        if currentfile is None:
+            sublime.error_message(NOT_SAVED)
+            return
 
         if isMaxscriptFile(currentfile):
             cmd = r'fileIn (@"%s");' % currentfile
             sendCmdToMax(cmd)
         else:
-            print NO_MXS_FILE
+            sublime.error_message(NO_MXS_FILE)
 
 
 class SendSelectionToMaxCommand(sublime_plugin.TextCommand):
@@ -60,7 +68,7 @@ class SendSelectionToMaxCommand(sublime_plugin.TextCommand):
 
             # Else send all lines where something is selected
             # This only works by saving to a tempfile first,
-            # as the mini listener does not accept multiline input
+            # as the mini macro recorder does not accept multiline input
             else:
                 line = self.view.line(region)
                 self.view.run_command("expand_selection", {"to": line.begin()})
@@ -71,4 +79,4 @@ class SendSelectionToMaxCommand(sublime_plugin.TextCommand):
                     cmd = r'fileIn (@"%s");' % TEMP
                     sendCmdToMax(cmd)
                 else:
-                    print NO_TEMP
+                    sublime.error_message(NO_TEMP)

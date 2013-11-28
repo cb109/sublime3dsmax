@@ -20,7 +20,7 @@ How to install manually
 ------------------
 1. Download the repository
 2. In Sublime Text go to *Preferences -> Browse Packages*
-3. Create a folder named *Sublime3dsMax*
+3. Create a folder named *Send to 3ds Max*
 4. Extract the contents to the folder
 5. Restart Sublime
 

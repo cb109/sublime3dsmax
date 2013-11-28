@@ -14,7 +14,7 @@ How to install using Sublime Package Control
 If you don't have Package Control installed, get it here: [Package Control](https://sublime.wbond.net/installation#st2 "https://sublime.wbond.net/installation#st2")
 
 1. In Sublime start *Package Control -> Install Package*
-2. Search for *Send to 3ds Max* or *Sublime3dsMax* and hit Enter to install
+2. Search for **Send to 3ds Max** and hit Enter to install
 
 How to install manually
 ------------------

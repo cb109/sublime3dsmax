@@ -35,6 +35,7 @@ Sending files will check if they are valid maxscript files (*.ms, *.mcr).
 To set shortcuts for the commands, edit your **Key Bindings - User** file and bind to any key you like (I mimic the MAXScript Listener keys here):
 
 ```{ "keys": ["ctrl+e"], "command": "send_file_to_max" }```
+
 ```{ "keys": ["shift+enter"], "command": "send_selection_to_max"}```
 
 Hope you like it.

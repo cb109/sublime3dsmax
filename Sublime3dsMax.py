@@ -16,7 +16,6 @@ TEMP = os.path.join(
 	os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
 	"Send_to_3ds_Max_Temp.ms"
 )
-
 print ("TEMP:", TEMP)
 
 NO_MXS_FILE = r"Sublime3dsMax: File is not a MAXScript file (*.ms, *.mcr)"

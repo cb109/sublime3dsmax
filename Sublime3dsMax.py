@@ -3,7 +3,7 @@ import sublime_plugin
 import os
 
 # Use import name prefix for Sublime Text 3
-version = sublime.version()
+version = (int) (sublime.version())
 if version > 3000 or version == "":
     def getPackageModule(name):
         m = __import__(name)

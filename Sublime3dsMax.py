@@ -17,14 +17,14 @@ TEMP = os.path.join(
 	"Send_to_3ds_Max_Temp.ms"
 )
 
-print ("TEMP:", tomax)
+print ("TEMP:", TEMP)
 
 NO_MXS_FILE = r"Sublime3dsMax: File is not a MAXScript file (*.ms, *.mcr)"
 NO_TEMP = r"Sublime3dsMax: Could not write to temp file"
 NOT_SAVED = r"Sublime3dsMax: File must be saved before sending to 3ds Max"
 MAX_NOT_FOUND = r"Sublime3dsMax: Could not find a 3ds max instance."
 RECORDER_NOT_FOUND = r"Sublime3dsMax: Could not find MAXScript Macro Recorder"
-
+teapot();
 def isMaxscriptFile(file):
     name, ext = os.path.splitext(file)
     if ext in (".ms", ".mcr"):

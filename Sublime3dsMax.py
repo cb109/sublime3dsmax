@@ -62,6 +62,7 @@ class SendFileToMaxCommand(sublime_plugin.TextCommand):
 
         if isMaxscriptFile(currentfile):
             cmd = r'fileIn (@"%s");' % currentfile
+            print (cmd)
             sendCmdToMax(cmd)
         else:
             sublime.error_message(NO_MXS_FILE)

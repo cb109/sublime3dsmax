@@ -30,11 +30,9 @@ How to setup in Sublime
 There are two available commands: **send_file_to_max** and **send_selection_to_max**.
 Sending files will check if they are valid maxscript files (*.ms, *.mcr).
 
-The following keys should be added automatically after package installation.
-To change them, edit your **Key Bindings - User** file and bind to any key you like (I mimic the MAXScript Listener keys here):
+To set shortcuts for the commands, edit your **Key Bindings - User** file and bind to any key you like (I mimic the MAXScript Listener keys here):
 
 ```{ "keys": ["ctrl+e"], "command": "send_file_to_max" }```
-
 ```{ "keys": ["shift+enter"], "command": "send_selection_to_max"}```
 
 Hope you like it.

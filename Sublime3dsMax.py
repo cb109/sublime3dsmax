@@ -10,7 +10,7 @@ if version > 3000 or version == "":
 import tomax
 print ("TOMAX:", tomax)
 
-# Create the tempfile in "Installed Packages"
+# Create the tempfile in "Packages" (ST2) / "Installed Packages" (ST3)
 TEMP = os.path.join(
 	os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
 	"Send_to_3ds_Max_Temp.ms"
@@ -76,6 +76,7 @@ class SendSelectionToMaxCommand(sublime_plugin.TextCommand):
                 line = self.view.line(region)
                 text = self.view.substr(line)
                 cmd = r'%s;' % text
+                print (cmd)
                 sendCmdToMax(cmd)
 
             # Else send all lines where something is selected
@@ -89,6 +90,7 @@ class SendSelectionToMaxCommand(sublime_plugin.TextCommand):
                 global TEMP
                 if os.path.exists(TEMP):
                     cmd = r'fileIn (@"%s");' % TEMP
+                    print (cmd)
                     sendCmdToMax(cmd)
                 else:
                     sublime.error_message(NO_TEMP)

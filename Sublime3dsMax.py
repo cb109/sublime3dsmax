@@ -5,14 +5,17 @@ import os
 # Use import name prefix for Sublime Text 3
 version = (int) (sublime.version())
 if version > 3000 or version == "":
-    def getPackageModule(name):
-        m = __import__(name)
-        for n in name.split(".")[1:]:
-            m = getattr(m, n)
-        return m
-    tomax = getPackageModule("Send to 3ds Max.tomax")
-else:
-    tomax = __import__("tomax")
+    #def getPackageModule(name):
+    #    m = __import__(name)
+    #    for n in name.split(".")[1:]:
+    #        m = getattr(m, n)
+    #    return m
+    #tomax = getPackageModule("Send to 3ds Max.tomax")
+    #from Send_to_3ds_Max import tomax
+    plugin_path = os.path.dirname(os.path.abspath(__file__))
+    sys.path.append(plugin_path)
+
+import tomax
 
 TEMP = os.path.join(os.path.dirname(os.path.realpath(__file__)), "temp.ms")
 NO_MXS_FILE = r"Sublime3dsMax: File is not a MAXScript file (*.ms, *.mcr)"

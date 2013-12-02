@@ -1,22 +1,24 @@
+#   Know issues: In ST3 there seems to be a problem pasting the cmd to 3ds Max. 
+#   Probably related to ctypes (pressing ENTER etc.) in Python 3.
+#   Until fixed this plugin only works for ST2.
+
 import sublime
 import sublime_plugin
 import os
 import sys
 
+# ST3 import fix
 version = (int) (sublime.version())
 if version > 3000 or version == "":
     plugin_path = os.path.dirname(os.path.abspath(__file__))
     sys.path.append(plugin_path)
 import tomax
-print ("TOMAX:", tomax)
 
 # Create the tempfile in "Packages" (ST2) / "Installed Packages" (ST3)
 TEMP = os.path.join(
 	os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
 	"Send_to_3ds_Max_Temp.ms"
 )
-print ("TEMP:", TEMP)
-
 NO_MXS_FILE = r"Sublime3dsMax: File is not a MAXScript file (*.ms, *.mcr)"
 NO_TEMP = r"Sublime3dsMax: Could not write to temp file"
 NOT_SAVED = r"Sublime3dsMax: File must be saved before sending to 3ds Max"
@@ -51,18 +53,13 @@ class SendFileToMaxCommand(sublime_plugin.TextCommand):
     """ Sends the current file by using 'fileIn <file>'.
     """
     def run(self, edit):
-        print ("sending file!")
-
         currentfile = self.view.file_name()
         if currentfile is None:
             sublime.error_message(NOT_SAVED)
             return
-        print ("CURRENTFILE:", currentfile)
-        print (isMaxscriptFile(currentfile))
 
         if isMaxscriptFile(currentfile):
             cmd = r'fileIn (@"%s");' % currentfile
-            print (cmd)
             sendCmdToMax(cmd)
         else:
             sublime.error_message(NO_MXS_FILE)
@@ -76,31 +73,24 @@ class SendSelectionToMaxCommand(sublime_plugin.TextCommand):
         for region in self.view.sel():
             text = None
 
-            print ("sending selection!")
-
             # If nothing selected, send single line
             if region.empty():
-                print ("REGION IS EMPTY")
                 line = self.view.line(region)
                 text = self.view.substr(line)
                 cmd = r'%s;' % text
-                print (cmd)
                 sendCmdToMax(cmd)
 
             # Else send all lines where something is selected
             # This only works by saving to a tempfile first,
             # as the mini macro recorder does not accept multiline input
             else:
-                print ("REGION IS NOT EMPTY")
                 line = self.view.line(region)
                 self.view.run_command("expand_selection", {"to": line.begin()})
                 regiontext = self.view.substr(self.view.line(region))
                 saveToTemp(regiontext)
                 global TEMP
                 if os.path.exists(TEMP):
-                    print ("TEMP EXISTS")
                     cmd = r'fileIn (@"%s");' % TEMP
-                    print (cmd)
                     sendCmdToMax(cmd)
                 else:
                     sublime.error_message(NO_TEMP)

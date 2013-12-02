@@ -5,19 +5,15 @@ import sys
 
 version = (int) (sublime.version())
 if version > 3000 or version == "":
-    #def getPackageModule(name):
-    #    m = __import__(name)
-    #    for n in name.split(".")[1:]:
-    #        m = getattr(m, n)
-    #    return m
-    #tomax = getPackageModule("Send to 3ds Max.tomax")
-    #from Send_to_3ds_Max import tomax
     plugin_path = os.path.dirname(os.path.abspath(__file__))
     sys.path.append(plugin_path)
-
 import tomax
 
-TEMP = os.path.join(os.path.dirname(os.path.realpath(__file__)), "temp.ms")
+# Create the tempfile in "Installed Packages"
+TEMP = os.path.join(
+	os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
+	"Send_to_3ds_Max_Temp.ms"
+)
 NO_MXS_FILE = r"Sublime3dsMax: File is not a MAXScript file (*.ms, *.mcr)"
 NO_TEMP = r"Sublime3dsMax: Could not write to temp file"
 NOT_SAVED = r"Sublime3dsMax: File must be saved before sending to 3ds Max"

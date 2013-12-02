@@ -1,10 +1,20 @@
-import sublime, sublime_plugin
+import sublime
+import sublime_plugin
 import os
-import tomax
+
+# Use import name prefix for Sublime Text 3
+version = sublime.version()
+if version > 3000 or version == "":
+    def getPackageModule(name):
+        m = __import__(name)
+        for n in name.split(".")[1:]:
+            m = getattr(m, n)
+        return m
+    tomax = getPackageModule("Send to 3ds Max.tomax")
+else:
+    tomax = __import__("tomax")
 
 TEMP = os.path.join(os.path.dirname(os.path.realpath(__file__)), "temp.ms")
-
-
 NO_MXS_FILE = r"Sublime3dsMax: File is not a MAXScript file (*.ms, *.mcr)"
 NO_TEMP = r"Sublime3dsMax: Could not write to temp file"
 NOT_SAVED = r"Sublime3dsMax: File must be saved before sending to 3ds Max"

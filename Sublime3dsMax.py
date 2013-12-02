@@ -8,7 +8,6 @@ if version > 3000 or version == "":
     plugin_path = os.path.dirname(os.path.abspath(__file__))
     sys.path.append(plugin_path)
 import tomax
-
 print ("TOMAX:", tomax)
 
 # Create the tempfile in "Installed Packages"

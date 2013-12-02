@@ -51,6 +51,8 @@ class SendFileToMaxCommand(sublime_plugin.TextCommand):
     """ Sends the current file by using 'fileIn <file>'.
     """
     def run(self, edit):
+        print ("sending file!")
+
         currentfile = self.view.file_name()
         if currentfile is None:
             sublime.error_message(NOT_SAVED)
@@ -70,6 +72,8 @@ class SendSelectionToMaxCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         for region in self.view.sel():
             text = None
+
+            print ("sending selection!")
 
             # If nothing selected, send single line
             if region.empty():

@@ -88,22 +88,19 @@ def _getChildWindowByName(hwnd, lParam):
     cbuff = ctypes.create_unicode_buffer(length + 1)
     GetClassName(hwnd, cbuff, length+1)
     if param.name == None and param.cls != None:
-        #print "no name, but cls"
         if param.cls in cbuff.value:# == param.cls:
             param.hwnd = hwnd
             return False
     elif param.cls == None and param.name != None:
-        #print "no cls, but name"
         if buff.value == param.name:
             param.hwnd = hwnd
             return False
     elif param.cls != None and param.name != None:
-        #print "cls and name"
         if buff.value == param.name and param.cls in cbuff.value:# == param.cls:
             param.hwnd = hwnd
             return False
     else: #both values are None, print the current element
-        print "wnd cls: "+cbuff.value+" name: "+buff.value+" enum: "+str(param._enum)
+        print ("wnd cls: "+cbuff.value+" name: "+buff.value+" enum: "+str(param._enum))
     return True
 
 def getChildWindowByName(hwnd, name = None, cls = None):
@@ -126,7 +123,6 @@ def getChildWindowByName(hwnd, name = None, cls = None):
     param = ThreadWinLParm(name=name,cls=cls,_enum=-1)
     lParam = ctypes.byref(param)
     EnumChildWindows(hwnd, EnumWindowsProc(_getChildWindowByName),lParam)
-    print param._enum
     return param.hwnd
 
 def getMXSMiniMacroRecorder():

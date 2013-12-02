@@ -8,6 +8,7 @@ Benefit from Sublime as an editor without having to enter 3ds Max everytime you 
 **Huge thanks to [Johannes](http://alfastuff.wordpress.com "Johannes") for figuring out all the
 complicated stuff! Check out his tools and scripts on his website!**
 
+I also added the MAXScript syntax coloring file from [Rogier van Etten](http://www.linkedin.com/in/frambooz "Rogier van Etten").
 
 How to install using Sublime Package Control
 ------------------

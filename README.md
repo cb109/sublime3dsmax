@@ -10,6 +10,8 @@ complicated stuff! Check out his tools and scripts on his website!**
 
 I also added the MAXScript syntax coloring file from [Rogier van Etten](http://www.linkedin.com/in/frambooz "Rogier van Etten").
 
+Known issues: This plugin currently only works in **Sublime 2**.
+
 How to install using Sublime Package Control
 ------------------
 If you don't have Package Control installed, get it here: [Package Control](https://sublime.wbond.net/installation#st2 "https://sublime.wbond.net/installation#st2")

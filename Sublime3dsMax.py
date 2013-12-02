@@ -57,6 +57,8 @@ class SendFileToMaxCommand(sublime_plugin.TextCommand):
         if currentfile is None:
             sublime.error_message(NOT_SAVED)
             return
+        print ("CURRENTFILE:", currentfile)
+        print (isMaxscriptFile(currentfile))
 
         if isMaxscriptFile(currentfile):
             cmd = r'fileIn (@"%s");' % currentfile
@@ -77,6 +79,7 @@ class SendSelectionToMaxCommand(sublime_plugin.TextCommand):
 
             # If nothing selected, send single line
             if region.empty():
+                print ("REGION IS EMPTY")
                 line = self.view.line(region)
                 text = self.view.substr(line)
                 cmd = r'%s;' % text
@@ -87,12 +90,14 @@ class SendSelectionToMaxCommand(sublime_plugin.TextCommand):
             # This only works by saving to a tempfile first,
             # as the mini macro recorder does not accept multiline input
             else:
+                print ("REGION IS NOT EMPTY")
                 line = self.view.line(region)
                 self.view.run_command("expand_selection", {"to": line.begin()})
                 regiontext = self.view.substr(self.view.line(region))
                 saveToTemp(regiontext)
                 global TEMP
                 if os.path.exists(TEMP):
+                    print ("TEMP EXISTS")
                     cmd = r'fileIn (@"%s");' % TEMP
                     print (cmd)
                     sendCmdToMax(cmd)

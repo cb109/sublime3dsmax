@@ -1,4 +1,4 @@
-#   Know issues: In ST3 there seems to be a problem pasting the cmd to 3ds Max. 
+#   Know issues: In ST3 there seems to be a problem pasting the cmd to 3ds Max.
 #   Probably related to ctypes (pressing ENTER etc.) in Python 3.
 #   Until fixed this plugin only works for ST2.
 
@@ -8,7 +8,7 @@ import os
 import sys
 
 # ST3 import fix
-version = (int) (sublime.version())
+version = (int)(sublime.version())
 if version > 3000 or version == "":
     plugin_path = os.path.dirname(os.path.abspath(__file__))
     sys.path.append(plugin_path)
@@ -16,14 +16,15 @@ import tomax
 
 # Create the tempfile in "Packages" (ST2) / "Installed Packages" (ST3)
 TEMP = os.path.join(
-	os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
-	"Send_to_3ds_Max_Temp.ms"
+    os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
+    "Send_to_3ds_Max_Temp.ms"
 )
 NO_MXS_FILE = r"Sublime3dsMax: File is not a MAXScript file (*.ms, *.mcr)"
 NO_TEMP = r"Sublime3dsMax: Could not write to temp file"
 NOT_SAVED = r"Sublime3dsMax: File must be saved before sending to 3ds Max"
 MAX_NOT_FOUND = r"Sublime3dsMax: Could not find a 3ds max instance."
 RECORDER_NOT_FOUND = r"Sublime3dsMax: Could not find MAXScript Macro Recorder"
+
 
 def isMaxscriptFile(file):
     name, ext = os.path.splitext(file)
@@ -32,15 +33,19 @@ def isMaxscriptFile(file):
     else:
         return False
 
+
 def sendCmdToMax(cmd):
-    if not tomax.connectToMax(): # Always connect first
+    sublime.status_message('Connecting to 3ds Max')
+    if not tomax.connectToMax():  # Always connect first
         sublime.error_message(MAX_NOT_FOUND)
         return
     if tomax.gMiniMacroRecorder:
+        sublime.status_message('Sending command to %s' % tomax.gMiniMacroRecorder)
         tomax.fireCommand(cmd)
-        tomax.gMiniMacroRecorder = None # Reset for next reconnect
+        tomax.gMiniMacroRecorder = None  # Reset for next reconnect
     else:
         sublime.error_message(RECORDER_NOT_FOUND)
+
 
 def saveToTemp(text):
     global TEMP

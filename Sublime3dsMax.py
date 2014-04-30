@@ -12,7 +12,8 @@ version = (int)(sublime.version())
 if version > 3000 or version == "":
     plugin_path = os.path.dirname(os.path.abspath(__file__))
     sys.path.append(plugin_path)
-import tomax
+#import tomax
+import winapi
 
 # Create the tempfile in "Packages" (ST2) / "Installed Packages" (ST3)
 TEMP = os.path.join(
@@ -36,13 +37,16 @@ def isMaxscriptFile(file):
 
 def sendCmdToMax(cmd):
     sublime.status_message('Connecting to 3ds Max')
-    if not tomax.connectToMax():  # Always connect first
+    gMainWindow = winapi.Window.find_window(r'Autodesk 3ds Max')
+    gMiniMacroRecorder = None
+    if gMainWindow is not None:
+        gMiniMacroRecorder = gMainWindow.find_child(text=None, cls='MXS_Scintilla')
+    else:
         sublime.error_message(MAX_NOT_FOUND)
-        return
-    if tomax.gMiniMacroRecorder:
-        sublime.status_message('Sending command to %s' % tomax.gMiniMacroRecorder)
-        tomax.fireCommand(cmd)
-        tomax.gMiniMacroRecorder = None  # Reset for next reconnect
+    if gMiniMacroRecorder is not None:
+        gMiniMacroRecorder.send(0x0C, 0, cmd)
+        gMiniMacroRecorder.send(0x102, 0x0D, 0)
+        gMiniMacroRecorder = None
     else:
         sublime.error_message(RECORDER_NOT_FOUND)
 
@@ -64,7 +68,7 @@ class SendFileToMaxCommand(sublime_plugin.TextCommand):
             return
 
         if isMaxscriptFile(currentfile):
-            cmd = r'fileIn (@"%s");' % currentfile
+            cmd = 'fileIn (@"%s");' % currentfile
             sendCmdToMax(cmd)
         else:
             sublime.error_message(NO_MXS_FILE)
@@ -82,7 +86,7 @@ class SendSelectionToMaxCommand(sublime_plugin.TextCommand):
             if region.empty():
                 line = self.view.line(region)
                 text = self.view.substr(line)
-                cmd = r'%s;' % text
+                cmd = '%s;' % text
                 sendCmdToMax(cmd)
 
             # Else send all lines where something is selected
@@ -95,7 +99,7 @@ class SendSelectionToMaxCommand(sublime_plugin.TextCommand):
                 saveToTemp(regiontext)
                 global TEMP
                 if os.path.exists(TEMP):
-                    cmd = r'fileIn (@"%s");' % TEMP
+                    cmd = 'fileIn (@"%s");' % TEMP
                     sendCmdToMax(cmd)
                 else:
                     sublime.error_message(NO_TEMP)

@@ -122,7 +122,7 @@ class GuessStringType(object):
 
         # Get the types of all arguments for the function
         v_types = [type(item) for item in argv]
-        v_types.extend([type(value) for (key, value) in argd.iteritems()])
+        v_types.extend([type(value) for (key, value) in argd.items()])
 
         # Get the appropriate function for the default type
         if self.t_default == t_ansi:
@@ -272,14 +272,15 @@ def GetWindowTextA(hWnd):
     nMaxCount = 0x1000
     dwCharSize = sizeof(CHAR)
     while 1:
-        lpString = ctypes.create_string_buffer("", nMaxCount)
+        lpString = ctypes.create_string_buffer(nMaxCount)
         nCount = _GetWindowTextA(hWnd, lpString, nMaxCount)
         if nCount == 0:
             raise ctypes.WinError()
         if nCount < nMaxCount - dwCharSize:
             break
         nMaxCount += 0x1000
-    return lpString.value
+    return str(lpString.value)
+
 
 def GetWindowTextW(hWnd):
     _GetWindowTextW = windll.user32.GetWindowTextW
@@ -289,14 +290,14 @@ def GetWindowTextW(hWnd):
     nMaxCount = 0x1000
     dwCharSize = sizeof(CHAR)
     while 1:
-        lpString = ctypes.create_string_buffer("", nMaxCount)
+        lpString = ctypes.create_string_buffer(nMaxCount)
         nCount = _GetWindowTextW(hWnd, lpString, nMaxCount)
         if nCount == 0:
             raise ctypes.WinError()
         if nCount < nMaxCount - dwCharSize:
             break
         nMaxCount += 0x1000
-    return lpString.value
+    return str(lpString.value)
 
 GetWindowText = GuessStringType(GetWindowTextA, GetWindowTextW)
 
@@ -314,14 +315,15 @@ def GetClassNameA(hWnd):
     nMaxCount = 0x1000
     dwCharSize = sizeof(CHAR)
     while 1:
-        lpClassName = ctypes.create_string_buffer("", nMaxCount)
+        lpClassName = ctypes.create_string_buffer(nMaxCount)
         nCount = _GetClassNameA(hWnd, lpClassName, nMaxCount)
         if nCount == 0:
             raise ctypes.WinError()
         if nCount < nMaxCount - dwCharSize:
             break
         nMaxCount += 0x1000
-    return lpClassName.value
+    return str(lpClassName.value)
+
 
 def GetClassNameW(hWnd):
     _GetClassNameW = windll.user32.GetClassNameW
@@ -331,14 +333,14 @@ def GetClassNameW(hWnd):
     nMaxCount = 0x1000
     dwCharSize = sizeof(WCHAR)
     while 1:
-        lpClassName = ctypes.create_unicode_buffer(u"", nMaxCount)
+        lpClassName = ctypes.create_unicode_buffer(nMaxCount)
         nCount = _GetClassNameW(hWnd, lpClassName, nMaxCount)
         if nCount == 0:
             raise ctypes.WinError()
         if nCount < nMaxCount - dwCharSize:
             break
         nMaxCount += 0x1000
-    return lpClassName.value
+    return str(lpClassName.value)
 
 GetClassName = GuessStringType(GetClassNameA, GetClassNameW)
 
@@ -444,9 +446,13 @@ class Window(object):
         for w in childs:
             wndText = w.get_text()
             wndCls = w.get_classname()
-            print wndText
-            print wndCls
-            if text in wndText and cls is None:
+            #print(wndText)
+            #print(wndCls)
+            if text is None and cls is None:
+                return None
+            if text is None and cls in wndCls:
+                return w
+            if cls is None and text in wndText:
                 return w
             if cls in wndCls and text is None:
                 return w
@@ -473,9 +479,9 @@ class Window(object):
             Typically a value of C{0} means an error occured. You can get the
             error code by calling L{win32.GetLastError}.
         """
-        print(uMsg)
-        print(wParam)
-        print(lParam)
+        #print(uMsg)
+        #print(wParam)
+        #print(lParam)
         return SendMessage(self.get_handle(), uMsg, wParam, lParam)
 
     @staticmethod

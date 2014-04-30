@@ -17,6 +17,7 @@
 # keeps all the required UI elements of the Max and talks to them
 import ctypes  # required for windows ui stuff
 import threading
+import sublime, sublime_plugin
 from . import winapi
 
 MAX_TITLE_IDENTIFIER = r"Autodesk 3ds Max"
@@ -210,7 +211,8 @@ def _getWindows(hwnd, lParam):
 
 def connectToMax():
     global gMainWindow
-#    global gMiniMacroRecorder
+    global MAX_TITLE_IDENTIFIER
+    global gMiniMacroRecorder
 #    gMainWindow = system.System.find_window(None, MAX_TITLE_IDENTIFIER)
 #    if gMainWindow is not None:
 #        for w in gMainWindow.get_children():
@@ -224,9 +226,10 @@ def connectToMax():
 #    for w in wnds:
 #        if w.get_text() in MAX_TITLE_IDENTIFIER:
 #            gMainWindow = w
-#    if gMainWindow is not None:
-#        gMiniMacroRecorder = w.find_child(text=None, cls='MXS_Scintilla')
-    EnumWindows(EnumWindowsProc(_getWindows), 0)
+    gMainWindow = winapi.Window.find_window(MAX_TITLE_IDENTIFIER)
+    if gMainWindow is not None:
+        gMiniMacroRecorder = gMainWindow.find_child(text=None, cls='MXS_Scintilla')
+    #EnumWindows(EnumWindowsProc(_getWindows), 0)
     return (gMainWindow is not None)
 
 
@@ -236,7 +239,7 @@ def fireCommand(command):
     global gMiniMacroRecorder
     #gMiniMacroRecorder.send(win32.WM_SETTEXT, str(command))
 
-    #gMiniMacroRecorder.send(WM_SETTEXT, NULL, command)
-    #gMiniMacroRecorder.send(WM_CHAR, VK_RETURN, NULL)
-    SendMessage(gMiniMacroRecorder, WM_SETTEXT, 0, command)
-    SendMessage(gMiniMacroRecorder, WM_CHAR, VK_RETURN, 0)
+    gMiniMacroRecorder.send(WM_SETTEXT, 0, command.encode('utf-8'))
+    gMiniMacroRecorder.send(WM_CHAR, VK_RETURN, 0)
+    #SendMessage(gMiniMacroRecorder, WM_SETTEXT, 0, str(command))
+    #SendMessage(gMiniMacroRecorder, WM_CHAR, VK_RETURN, 0)

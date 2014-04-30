@@ -15,10 +15,8 @@
 ############################################################################
 
 # keeps all the required UI elements of the Max and talks to them
-import ctypes  # required for windows ui stuff
+import ctypes #required for windows ui stuff
 import threading
-import sublime, sublime_plugin
-from . import winapi
 
 MAX_TITLE_IDENTIFIER = r"Autodesk 3ds Max"
 
@@ -27,9 +25,10 @@ gMaxThreadProcessID = None
 gMainWindow = None
 gMiniMacroRecorder = None
 
-
-EnumWindowsProc = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int))
+# windows functions and constants
+# stuff for finding and analyzing UI Elements
 EnumWindows = ctypes.windll.user32.EnumWindows
+EnumWindowsProc = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int))
 EnumChildWindows = ctypes.windll.user32.EnumChildWindows
 FindWindowEx = ctypes.windll.user32.FindWindowExW
 
@@ -43,15 +42,14 @@ GetWindowThreadProcessId = ctypes.windll.user32.GetWindowThreadProcessId
 PostMessage = ctypes.windll.user32.PostMessageA
 SendMessage = ctypes.windll.user32.SendMessageA
 
-WM_SETTEXT = 0x0C
+WM_SETTEXT = 0x000C
 WM_KEYDOWN = 0x0100
 WM_KEYUP = 0x0101
-WM_CHAR = 0x102  # the alternative to WM_KEYDOWN
-VK_RETURN = 0x0D  # Enter key
+WM_CHAR = 0x0102 # the alternative to WM_KEYDOWN
+VK_RETURN  = 0x0D # Enter key
 
 # attaching is required for SendMessage and the like to actually work like it should
 AttachThreadInput = ctypes.windll.user32.AttachThreadInput
-
 
 class ThreadWinLParm(ctypes.Structure):
     """lParam object to get a name to and an object back from a windows
@@ -59,14 +57,13 @@ class ThreadWinLParm(ctypes.Structure):
 
     .. seealso:: :func:`_getChildWindowByName`
     """
-    _fields_ = [
+    _fields_=[
         ("name", ctypes.c_wchar_p),
         ("cls", ctypes.c_wchar_p),
         ("hwnd", ctypes.POINTER(ctypes.c_long)),
         ("enumPos", ctypes.c_int),
-        ("_enum", ctypes.c_int)  # keep track of current enum step
+        ("_enum", ctypes.c_int) # keep track of current enum step
     ]
-
 
 def _getChildWindowByName(hwnd, lParam):
     """callback function to be called by EnumChildWindows, see
@@ -90,24 +87,23 @@ def _getChildWindowByName(hwnd, lParam):
     length = 255
     cbuff = ctypes.create_unicode_buffer(length + 1)
     GetClassName(hwnd, cbuff, length+1)
-    if param.name is None and param.cls is not None:
-        if param.cls in cbuff.value:  # == param.cls:
+    if param.name == None and param.cls != None:
+        if param.cls in cbuff.value:# == param.cls:
             param.hwnd = hwnd
             return False
-    elif param.cls is None and param.name is not None:
+    elif param.cls == None and param.name != None:
         if buff.value == param.name:
             param.hwnd = hwnd
             return False
-    elif param.cls is not None and param.name is not None:
-        if buff.value == param.name and param.cls in cbuff.value:  # == param.cls:
+    elif param.cls != None and param.name != None:
+        if buff.value == param.name and param.cls in cbuff.value:# == param.cls:
             param.hwnd = hwnd
             return False
-    else:  # both values are None, print the current element
+    else: #both values are None, print the current element
         print ("wnd cls: "+cbuff.value+" name: "+buff.value+" enum: "+str(param._enum))
     return True
 
-
-def getChildWindowByName(hwnd, name=None, cls=None):
+def getChildWindowByName(hwnd, name = None, cls = None):
     """find a window by its name or clsName, returns the window's hwnd
 
     :param hwnd: the parent window's hwnd
@@ -124,11 +120,10 @@ def getChildWindowByName(hwnd, name=None, cls=None):
     .. seealso:: :func:`_getChildWindowByName`, :func:`getChildWindowByEnumPos`
 
     """
-    param = ThreadWinLParm(name=name, cls=cls, _enum=-1)
+    param = ThreadWinLParm(name=name,cls=cls,_enum=-1)
     lParam = ctypes.byref(param)
-    EnumChildWindows(hwnd, EnumWindowsProc(_getChildWindowByName), lParam)
+    EnumChildWindows(hwnd, EnumWindowsProc(_getChildWindowByName),lParam)
     return param.hwnd
-
 
 def getMXSMiniMacroRecorder():
     """convenience function
@@ -139,7 +134,6 @@ def getMXSMiniMacroRecorder():
     miniMacroRecorderHandle = getChildWindowByName(gMainWindow, name=None, cls="MXS_Scintilla")
     return miniMacroRecorderHandle
 
-
 def _getChildWindowByEnumPos(hwnd, lParam):
     """ callback function, see :func:`getChildWindowByEnumPos` """
     param = ctypes.cast(lParam, ctypes.POINTER(ThreadWinLParm)).contents
@@ -148,7 +142,6 @@ def _getChildWindowByEnumPos(hwnd, lParam):
         param.hwnd = hwnd
         return False
     return True
-
 
 def getChildWindowByEnumPos(hwnd, pos):
     """get a child window by its enum pos, return its hwnd
@@ -166,10 +159,9 @@ def getChildWindowByEnumPos(hwnd, pos):
     .. seealso:: :func:`getChildWindowByName`
 
     """
-    param = ThreadWinLParm(name=None, cls=None, enumPos=pos, _enum=-1)
-    EnumChildWindows(hwnd, EnumWindowsProc(_getChildWindowByEnumPos), ctypes.byref(param))
+    param = ThreadWinLParm(name = None, cls = None, enumPos = pos, _enum = -1)
+    EnumChildWindows( hwnd, EnumWindowsProc(_getChildWindowByEnumPos), ctypes.byref(param))
     return param.hwnd
-
 
 def attachThreads(hwnd):
     """tell Windows to attach the program and the max threads.
@@ -178,12 +170,11 @@ def attachThreads(hwnd):
     the max thread will only return when Max has processed the message, amazing!
 
     """
-    thread = GetWindowThreadProcessId(hwnd, 0)  # max thread
+    thread = GetWindowThreadProcessId(hwnd, 0) #max thread
     global gMaxThreadProcessID
     gMaxThreadProcessID = thread
-    thisThread = threading.current_thread().ident  # program thread
+    thisThread = threading.current_thread().ident #program thread
     AttachThreadInput(thread, thisThread, True)
-
 
 def _getWindows(hwnd, lParam):
     """callback function, find the Max Window (and fill the ui element vars)
@@ -208,38 +199,15 @@ def _getWindows(hwnd, lParam):
             return False
     return True
 
-
 def connectToMax():
     global gMainWindow
-    global MAX_TITLE_IDENTIFIER
-    global gMiniMacroRecorder
-#    gMainWindow = system.System.find_window(None, MAX_TITLE_IDENTIFIER)
-#    if gMainWindow is not None:
-#        for w in gMainWindow.get_children():
-#            if w.get_classname() in 'MXS_Scintilla':
-#                gMiniMacroRecorder = w
-#                break
-#    return (gMainWindow is not None)
-#    global gMainWindow
-#    global gMiniMacroRecorder
-#    wnds = [winapi.Window(w) for w in winapi.EnumWindows()]
-#    for w in wnds:
-#        if w.get_text() in MAX_TITLE_IDENTIFIER:
-#            gMainWindow = w
-    gMainWindow = winapi.Window.find_window(MAX_TITLE_IDENTIFIER)
-    if gMainWindow is not None:
-        gMiniMacroRecorder = gMainWindow.find_child(text=None, cls='MXS_Scintilla')
-    #EnumWindows(EnumWindowsProc(_getWindows), 0)
+    EnumWindows(EnumWindowsProc(_getWindows), 0)
     return (gMainWindow is not None)
-
 
 def fireCommand(command):
     """Executes the command string in Max.
     ';' at end needed for ReturnKey to be accepted."""
     global gMiniMacroRecorder
-    #gMiniMacroRecorder.send(win32.WM_SETTEXT, str(command))
+    SendMessage(gMiniMacroRecorder, WM_SETTEXT, 0, str(command) )
+    SendMessage(gMiniMacroRecorder, WM_CHAR, VK_RETURN, 0)
 
-    gMiniMacroRecorder.send(WM_SETTEXT, 0, command.encode('utf-8'))
-    gMiniMacroRecorder.send(WM_CHAR, VK_RETURN, 0)
-    #SendMessage(gMiniMacroRecorder, WM_SETTEXT, 0, str(command))
-    #SendMessage(gMiniMacroRecorder, WM_CHAR, VK_RETURN, 0)

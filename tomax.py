@@ -17,7 +17,7 @@
 # keeps all the required UI elements of the Max and talks to them
 import ctypes  # required for windows ui stuff
 import threading
-
+from . import winapi
 
 MAX_TITLE_IDENTIFIER = r"Autodesk 3ds Max"
 
@@ -26,222 +26,10 @@ gMaxThreadProcessID = None
 gMainWindow = None
 gMiniMacroRecorder = None
 
-LPVOID = ctypes.c_void_p
-CHAR = ctypes.c_char
-WCHAR = ctypes.c_wchar
-BYTE = ctypes.c_ubyte
-SBYTE = ctypes.c_byte
-WORD = ctypes.c_uint16
-SWORD = ctypes.c_int16
-DWORD = ctypes.c_uint32
-SDWORD = ctypes.c_int32
-QWORD = ctypes.c_uint64
-SQWORD = ctypes.c_int64
-SHORT = ctypes.c_short
-USHORT = ctypes.c_ushort
-INT = ctypes.c_int
-UINT = ctypes.c_uint
-LONG = ctypes.c_long
-ULONG = ctypes.c_ulong
-LONGLONG = ctypes.c_int64        # c_longlong
-ULONGLONG = ctypes.c_uint64       # c_ulonglong
-LPSTR = ctypes.c_char_p
-LPWSTR = ctypes.c_wchar_p
-INT8 = ctypes.c_int8
-INT16 = ctypes.c_int16
-INT32 = ctypes.c_int32
-INT64 = ctypes.c_int64
-UINT8 = ctypes.c_uint8
-UINT16 = ctypes.c_uint16
-UINT32 = ctypes.c_uint32
-UINT64 = ctypes.c_uint64
-LONG32 = ctypes.c_int32
-LONG64 = ctypes.c_int64
-ULONG32 = ctypes.c_uint32
-ULONG64 = ctypes.c_uint64
-DWORD32 = ctypes.c_uint32
-DWORD64 = ctypes.c_uint64
-BOOL = ctypes.c_int
-FLOAT = ctypes.c_float
-PVOID = LPVOID
-HANDLE = LPVOID
-HWND = HANDLE
-addressof = ctypes.addressof
-sizeof = ctypes.sizeof
-SIZEOF = ctypes.sizeof
-POINTER = ctypes.POINTER
-Structure = ctypes.Structure
-Union = ctypes.Union
-WINFUNCTYPE = ctypes.WINFUNCTYPE
-windll = ctypes.windll
-WNDENUMPROC = WINFUNCTYPE(BOOL, HWND, PVOID)
-NULL = None
-INFINITE = -1
-TRUE = 1
-FALSE = 0
-WPARAM = DWORD
-LPARAM = LPVOID
-LRESULT = LPVOID
-ERROR_SUCCESS = 0
-ERROR_NO_MORE_FILES = 18
 
-
-# DWORD WINAPI GetLastError(void);
-def GetLastError():
-    _GetLastError = windll.kernel32.GetLastError
-    _GetLastError.argtypes = []
-    _GetLastError.restype = DWORD
-    return _GetLastError()
-
-
-# void WINAPI SetLastError(
-#   __in  DWORD dwErrCode
-# );
-def SetLastError(dwErrCode):
-    _SetLastError = windll.kernel32.SetLastError
-    _SetLastError.argtypes = [DWORD]
-    _SetLastError.restype = None
-    _SetLastError(dwErrCode)
-
-
-def MAKE_WPARAM(wParam):
-    """
-    Convert arguments to the WPARAM type.
-    Used automatically by SendMessage, PostMessage, etc.
-    You shouldn't need to call this function.
-    """
-    wParam = ctypes.cast(wParam, LPVOID).value
-    if wParam is None:
-        wParam = 0
-    return wParam
-
-
-def MAKE_LPARAM(lParam):
-    """
-    Convert arguments to the LPARAM type.
-    Used automatically by SendMessage, PostMessage, etc.
-    You shouldn't need to call this function.
-    """
-    return ctypes.cast(lParam, LPARAM)
-
-
-class __WindowEnumerator (object):
-    """
-    Window enumerator class. Used internally by the window enumeration APIs.
-    """
-    def __init__(self):
-        self.hwnd = list()
-
-    def __call__(self, hwnd, lParam):
-##        print hwnd  # XXX DEBUG
-        self.hwnd.append(hwnd)
-        return TRUE
-
-
-class __EnumWndProc (__WindowEnumerator):
-    pass
-
-
-# windows functions and constants
-# stuff for finding and analyzing UI Elements
-#EnumWindows = ctypes.windll.user32.EnumWindows
-def EnumWindows():
-    _EnumWindows = windll.user32.EnumWindows
-    _EnumWindows.argtypes = [WNDENUMPROC, LPARAM]
-    _EnumWindows.restype = bool
-
-    EnumFunc = __EnumWndProc()
-    lpEnumFunc = WNDENUMPROC(EnumFunc)
-    if not _EnumWindows(lpEnumFunc, NULL):
-        errcode = GetLastError()
-        if errcode not in (ERROR_NO_MORE_FILES, ERROR_SUCCESS):
-            raise ctypes.WinError(errcode)
-    return EnumFunc.hwnd
-
-
-# BOOL CALLBACK EnumChildProc(
-#     HWND hwnd,
-#     LPARAM lParam
-# );
-class __EnumChildProc (__WindowEnumerator):
-    pass
-
-
-# BOOL EnumChildWindows(
-#     HWND hWndParent,
-#     WNDENUMPROC lpEnumFunc,
-#     LPARAM lParam
-# );
-def EnumChildWindows(hWndParent=NULL):
-    _EnumChildWindows = windll.user32.EnumChildWindows
-    _EnumChildWindows.argtypes = [HWND, WNDENUMPROC, LPARAM]
-    _EnumChildWindows.restype = bool
-
-    EnumFunc = __EnumChildProc()
-    lpEnumFunc = WNDENUMPROC(EnumFunc)
-    SetLastError(ERROR_SUCCESS)
-    _EnumChildWindows(hWndParent, lpEnumFunc, NULL)
-    errcode = GetLastError()
-    if errcode != ERROR_SUCCESS and errcode not in (ERROR_NO_MORE_FILES, ERROR_SUCCESS):
-        raise ctypes.WinError(errcode)
-    return EnumFunc.hwnd
-
-
-def FindWindowW(lpClassName=None, lpWindowName=None):
-    _FindWindowW = windll.user32.FindWindowW
-    _FindWindowW.argtypes = [LPWSTR, LPWSTR]
-    _FindWindowW.restype = HWND
-
-    hWnd = _FindWindowW(lpClassName, lpWindowName)
-    if not hWnd:
-        errcode = GetLastError()
-        if errcode != ERROR_SUCCESS:
-            raise ctypes.WinError(errcode)
-    return hWnd
-
-
-def GetWindowTextW(hWnd):
-    _GetWindowTextW = windll.user32.GetWindowTextW
-    _GetWindowTextW.argtypes = [HWND, LPWSTR, ctypes.c_int]
-    _GetWindowTextW.restype = ctypes.c_int
-
-    nMaxCount = 0x1000
-    dwCharSize = sizeof(CHAR)
-    while 1:
-        lpString = ctypes.create_string_buffer("", nMaxCount)
-        nCount = _GetWindowTextW(hWnd, lpString, nMaxCount)
-        if nCount == 0:
-            raise ctypes.WinError()
-        if nCount < nMaxCount - dwCharSize:
-            break
-        nMaxCount += 0x1000
-    return lpString.value
-
-
-def SetWindowTextW(hWnd, lpString=None):
-    _SetWindowTextW = windll.user32.SetWindowTextW
-    _SetWindowTextW.argtypes = [HWND, LPWSTR]
-    _SetWindowTextW.restype = bool
-    _SetWindowTextW.errcheck = RaiseIfZero
-    _SetWindowTextW(hWnd, lpString)
-
-
-def SendMessageW(hWnd, Msg, wParam=0, lParam=0):
-    _SendMessageW = windll.user32.SendMessageW
-    _SendMessageW.argtypes = [HWND, UINT, WPARAM, LPARAM]
-    _SendMessageW.restype = LRESULT
-
-    wParam = MAKE_WPARAM(wParam)
-    lParam = MAKE_LPARAM(lParam)
-    return _SendMessageW(hWnd, Msg, wParam, lParam)
-
-
-class Window(object):
-    def __init__(hwnd):
-        pass
-
-#EnumWindowsProc = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int))
-#EnumChildWindows = ctypes.windll.user32.EnumChildWindows
+EnumWindowsProc = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int))
+EnumWindows = ctypes.windll.user32.EnumWindows
+EnumChildWindows = ctypes.windll.user32.EnumChildWindows
 FindWindowEx = ctypes.windll.user32.FindWindowExW
 
 GetClassName = ctypes.windll.user32.GetClassNameW
@@ -411,7 +199,7 @@ def _getWindows(hwnd, lParam):
         if MAX_TITLE_IDENTIFIER in buff.value:
             global gMainWindow, gMaxThreadProcessID
             gMainWindow = hwnd
-            #attachThreads(gMainWindow)
+            attachThreads(gMainWindow)
 
             # Find MAXScript Mini Listener
             global gMiniMacroRecorder
@@ -421,7 +209,7 @@ def _getWindows(hwnd, lParam):
 
 
 def connectToMax():
-#    global gMainWindow
+    global gMainWindow
 #    global gMiniMacroRecorder
 #    gMainWindow = system.System.find_window(None, MAX_TITLE_IDENTIFIER)
 #    if gMainWindow is not None:
@@ -430,10 +218,15 @@ def connectToMax():
 #                gMiniMacroRecorder = w
 #                break
 #    return (gMainWindow is not None)
-    global gMainWindow
-    for w in EnumWindows():
-        if 
-    #EnumWindows(EnumWindowsProc(_getWindows), 0)
+#    global gMainWindow
+#    global gMiniMacroRecorder
+#    wnds = [winapi.Window(w) for w in winapi.EnumWindows()]
+#    for w in wnds:
+#        if w.get_text() in MAX_TITLE_IDENTIFIER:
+#            gMainWindow = w
+#    if gMainWindow is not None:
+#        gMiniMacroRecorder = w.find_child(text=None, cls='MXS_Scintilla')
+    EnumWindows(EnumWindowsProc(_getWindows), 0)
     return (gMainWindow is not None)
 
 
@@ -442,5 +235,8 @@ def fireCommand(command):
     ';' at end needed for ReturnKey to be accepted."""
     global gMiniMacroRecorder
     #gMiniMacroRecorder.send(win32.WM_SETTEXT, str(command))
-    SendMessageW(gMiniMacroRecorder, WM_SETTEXT, 0, command)
-    SendMessageW(gMiniMacroRecorder, WM_CHAR, VK_RETURN, 0)
+
+    #gMiniMacroRecorder.send(WM_SETTEXT, NULL, command)
+    #gMiniMacroRecorder.send(WM_CHAR, VK_RETURN, NULL)
+    SendMessage(gMiniMacroRecorder, WM_SETTEXT, 0, command)
+    SendMessage(gMiniMacroRecorder, WM_CHAR, VK_RETURN, 0)

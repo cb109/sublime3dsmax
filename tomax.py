@@ -1,4 +1,5 @@
 ############################################################################
+#   NOT USED ANYMORE, BUT INCLUDED FOR FUTURE REFERENCE
 #
 #   This module finds 3ds Max and the MAXScript Listener and can
 #   send strings and button strokes to it.

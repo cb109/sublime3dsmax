@@ -28,6 +28,7 @@
 Portions of code from winappdbg, i'm using only the parts we need, and ported them to Python 3.3
 Modified by Daniel Santana, all the copyrights belong to Mario Vilas
 """
+from __future__ import print_function, absolute_import, unicode_literals, with_statement
 
 import ctypes
 

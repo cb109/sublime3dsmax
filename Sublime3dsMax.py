@@ -1,7 +1,8 @@
 #   Know issues: In ST3 there seems to be a problem pasting the cmd to 3ds Max.
 #   Probably related to ctypes (pressing ENTER etc.) in Python 3.
 #   Until fixed this plugin only works for ST2.
-
+#   @dgsantana: the problems were due to unicode in python 3, add __future__ to made it compatible with ST2
+from __future__ import print_function, absolute_import, unicode_literals, with_statement
 import sublime
 import sublime_plugin
 import os
@@ -13,7 +14,8 @@ if version > 3000 or version == "":
     plugin_path = os.path.dirname(os.path.abspath(__file__))
     sys.path.append(plugin_path)
 #import tomax
-import winapi
+
+from . import winapi
 
 # Create the tempfile in "Packages" (ST2) / "Installed Packages" (ST3)
 TEMP = os.path.join(

@@ -42,4 +42,4 @@ Hope you like it.
 
 
 
-Author: [www.cbuelter.de](http://www.cbuelter.de "www.cbuelter.de")
+Authors: [Christoph Bülter](http://www.cbuelter.de "www.cbuelter.de"), [Johannes Becker](http://alfastuff.wordpress.com "http://alfastuff.wordpress.com")

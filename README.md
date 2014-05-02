@@ -9,8 +9,9 @@ Benefit from Sublime as an editor without having to enter 3ds Max everytime you 
 complicated stuff! Check out his tools and scripts on his website!**
 
 I also added the MAXScript syntax coloring file from [Rogier van Etten](http://www.linkedin.com/in/frambooz "Rogier van Etten").
+Thanks to [Daniel Santana]("http://github.com/dgsantana") the plugin now also works in Sublime 3.
 
-Known issues: This plugin currently only works in **Sublime 2**.
+Known issues: Multiline support and MAXScript syntax color file currently not working for Sublime 3.
 
 How to install using Sublime Package Control
 ------------------
@@ -38,8 +39,11 @@ To set shortcuts for the commands, edit your **Key Bindings - User** file and bi
 
 ```{ "keys": ["shift+enter"], "command": "send_selection_to_max"}```
 
+If you want to contribute, please grab a fork and submit a pull request for the develop branch :)
+
 Hope you like it.
 
 
 
-Authors: [Christoph Bülter](http://www.cbuelter.de "www.cbuelter.de"), [Johannes Becker](http://alfastuff.wordpress.com "http://alfastuff.wordpress.com")
+-Original authors: [Christoph Bülter](http://www.cbuelter.de "www.cbuelter.de"), [Johannes Becker](http://alfastuff.wordpress.com "http://alfastuff.wordpress.com")
+-Contributors: [Daniel Santana]("http://github.com/dgsantana")

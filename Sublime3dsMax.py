@@ -1,21 +1,26 @@
-#   Know issues: In ST3 there seems to be a problem pasting the cmd to 3ds Max.
-#   Probably related to ctypes (pressing ENTER etc.) in Python 3.
-#   Until fixed this plugin only works for ST2.
+""" Send maxscript files or codelines to 3ds Max.
 #   @dgsantana: the problems were due to unicode in python 3, add __future__ to made it compatible with ST2
 from __future__ import print_function, absolute_import, unicode_literals, with_statement
-import sublime
-import sublime_plugin
+    Known issues that need to be fixed:
+        - Sending a multiline selection is currently broken (maybe ST3 API for that changed?)
+        - The maxscript syntax coloring file does not work/is not recognized 
+"""
+
+
 import os
 import sys
+import sublime
+import sublime_plugin
 
 # ST3 import fix
 version = (int)(sublime.version())
 if version > 3000 or version == "":
     plugin_path = os.path.dirname(os.path.abspath(__file__))
     sys.path.append(plugin_path)
-#import tomax
+
 
 from . import winapi
+
 
 # Create the tempfile in "Packages" (ST2) / "Installed Packages" (ST3)
 TEMP = os.path.join(
@@ -28,8 +33,12 @@ NOT_SAVED = r"Sublime3dsMax: File must be saved before sending to 3ds Max"
 MAX_NOT_FOUND = r"Sublime3dsMax: Could not find a 3ds max instance."
 RECORDER_NOT_FOUND = r"Sublime3dsMax: Could not find MAXScript Macro Recorder"
 
+MAX_TITLE_IDENTIFIER = r"Autodesk 3ds Max"
+
 
 def isMaxscriptFile(file):
+    """ Checks if file is a maxscript by extension. 
+    """
     name, ext = os.path.splitext(file)
     if ext in (".ms", ".mcr"):
         return True
@@ -38,26 +47,31 @@ def isMaxscriptFile(file):
 
 
 def sendCmdToMax(cmd):
-    sublime.status_message('Connecting to 3ds Max')
-    gMainWindow = winapi.Window.find_window(r'Autodesk 3ds Max')
+    """ Tries to find the 3ds Max window by title and 
+    the mini macrorecorder by class. Sends a string command 
+    and a return-key buttonstroke to it to evaluate the command.
+    """
+    gMainWindow = winapi.Window.find_window(MAX_TITLE_IDENTIFIER)
     gMiniMacroRecorder = None
     if gMainWindow is not None:
-        gMiniMacroRecorder = gMainWindow.find_child(text=None, cls='MXS_Scintilla')
+        gMiniMacroRecorder = gMainWindow.find_child(text=None, cls="MXS_Scintilla")
     else:
         sublime.error_message(MAX_NOT_FOUND)
     if gMiniMacroRecorder is not None:
-        gMiniMacroRecorder.send(0x0C, 0, cmd)
-        gMiniMacroRecorder.send(0x102, 0x0D, 0)
+        sublime.status_message('Send to 3ds Max: {cmd}'.format(**locals())[:-1])  # Cut ';'
+        cmd = cmd.encode("utf-8")  # Needed for ST3!
+        gMiniMacroRecorder.send(winapi.WM_SETTEXT, 0, cmd)
+        gMiniMacroRecorder.send(winapi.WM_CHAR, winapi.VK_RETURN, 0)
         gMiniMacroRecorder = None
     else:
         sublime.error_message(RECORDER_NOT_FOUND)
 
 
-def saveToTemp(text):
-    global TEMP
-    tempfile = open(TEMP, "w")
-    tempfile.write(text)
-    tempfile.close()
+def saveToTempFile(text):
+    """ Stores code in a temporary maxscript file. 
+    """
+    with open(TEMP, "w") as tempFile:
+        tempFile.write(text)
 
 
 class SendFileToMaxCommand(sublime_plugin.TextCommand):
@@ -70,7 +84,7 @@ class SendFileToMaxCommand(sublime_plugin.TextCommand):
             return
 
         if isMaxscriptFile(currentfile):
-            cmd = 'fileIn (@"%s");' % currentfile
+            cmd = 'fileIn (@"{currentfile}");'.format(**locals())
             sendCmdToMax(cmd)
         else:
             sublime.error_message(NO_MXS_FILE)
@@ -88,7 +102,7 @@ class SendSelectionToMaxCommand(sublime_plugin.TextCommand):
             if region.empty():
                 line = self.view.line(region)
                 text = self.view.substr(line)
-                cmd = '%s;' % text
+                cmd = '{text};'.format(**locals())
                 sendCmdToMax(cmd)
 
             # Else send all lines where something is selected
@@ -98,10 +112,10 @@ class SendSelectionToMaxCommand(sublime_plugin.TextCommand):
                 line = self.view.line(region)
                 self.view.run_command("expand_selection", {"to": line.begin()})
                 regiontext = self.view.substr(self.view.line(region))
-                saveToTemp(regiontext)
+                saveToTempFile(regiontext)
                 global TEMP
                 if os.path.exists(TEMP):
-                    cmd = 'fileIn (@"%s");' % TEMP
+                    cmd = r'fileIn (@"{TEMP}");'.format(**locals())
                     sendCmdToMax(cmd)
                 else:
                     sublime.error_message(NO_TEMP)

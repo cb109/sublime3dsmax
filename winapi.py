@@ -91,6 +91,12 @@ LRESULT = LPVOID
 ERROR_SUCCESS = 0
 ERROR_NO_MORE_FILES = 18
 
+WM_SETTEXT = 0x000C
+WM_KEYDOWN = 0x0100
+WM_KEYUP = 0x0101
+WM_CHAR = 0x0102  # The alternative to WM_KEYDOWN
+VK_RETURN  = 0x0D  # Enter key
+
 
 class GuessStringType(object):
     """

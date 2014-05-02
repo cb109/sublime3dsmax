@@ -3,7 +3,7 @@
 from __future__ import print_function, absolute_import, unicode_literals, with_statement
     Known issues that need to be fixed:
         - Sending a multiline selection is currently broken (maybe ST3 API for that changed?)
-        - The maxscript syntax coloring file does not work/is not recognized 
+        - The maxscript syntax coloring file does not work/is not recognized
 """
 
 
@@ -37,7 +37,7 @@ MAX_TITLE_IDENTIFIER = r"Autodesk 3ds Max"
 
 
 def isMaxscriptFile(file):
-    """ Checks if file is a maxscript by extension. 
+    """ Checks if file is a maxscript by extension.
     """
     name, ext = os.path.splitext(file)
     if ext in (".ms", ".mcr"):
@@ -47,8 +47,8 @@ def isMaxscriptFile(file):
 
 
 def sendCmdToMax(cmd):
-    """ Tries to find the 3ds Max window by title and 
-    the mini macrorecorder by class. Sends a string command 
+    """ Tries to find the 3ds Max window by title and
+    the mini macrorecorder by class. Sends a string command
     and a return-key buttonstroke to it to evaluate the command.
     """
     gMainWindow = winapi.Window.find_window(MAX_TITLE_IDENTIFIER)
@@ -68,7 +68,7 @@ def sendCmdToMax(cmd):
 
 
 def saveToTempFile(text):
-    """ Stores code in a temporary maxscript file. 
+    """ Stores code in a temporary maxscript file.
     """
     with open(TEMP, "w") as tempFile:
         tempFile.write(text)
@@ -115,7 +115,7 @@ class SendSelectionToMaxCommand(sublime_plugin.TextCommand):
                 saveToTempFile(regiontext)
                 global TEMP
                 if os.path.exists(TEMP):
-                    cmd = r'fileIn (@"{TEMP}");'.format(**locals())
+                    cmd = r'fileIn (@"{TEMP}");'.format(**globals())
                     sendCmdToMax(cmd)
                 else:
                     sublime.error_message(NO_TEMP)

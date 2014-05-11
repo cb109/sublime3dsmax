@@ -1,25 +1,18 @@
 """ Send maxscript files or codelines to 3ds Max.
-#   @dgsantana: the problems were due to unicode in python 3, add __future__ to made it compatible with ST2
-from __future__ import print_function, absolute_import, unicode_literals, with_statement
-    Known issues that need to be fixed:
-        - Sending a multiline selection is currently broken (maybe ST3 API for that changed?)
-        - The maxscript syntax coloring file does not work/is not recognized
 """
-
+from __future__ import unicode_literals
 
 import os
-import sys
 import sublime
 import sublime_plugin
 
-# ST3 import fix
-version = (int)(sublime.version())
-if version > 3000 or version == "":
-    plugin_path = os.path.dirname(os.path.abspath(__file__))
-    sys.path.append(plugin_path)
-
-
-from . import winapi
+# Import depending on Sublime version
+version = int(sublime.version())
+ST3 = version > 3000 or version == ""
+if ST3:
+    from . import winapi
+else:
+    import winapi
 
 
 # Create the tempfile in "Packages" (ST2) / "Installed Packages" (ST3)
@@ -71,7 +64,11 @@ def saveToTempFile(text):
     """ Stores code in a temporary maxscript file.
     """
     with open(TEMP, "w") as tempFile:
-        tempFile.write(text)
+        if ST3:
+            tempFile.write(text)
+        else:
+            text = text.encode("utf-8")
+            tempFile.write(text)
 
 
 class SendFileToMaxCommand(sublime_plugin.TextCommand):
@@ -113,7 +110,6 @@ class SendSelectionToMaxCommand(sublime_plugin.TextCommand):
                 self.view.run_command("expand_selection", {"to": line.begin()})
                 regiontext = self.view.substr(self.view.line(region))
                 saveToTempFile(regiontext)
-                global TEMP
                 if os.path.exists(TEMP):
                     cmd = r'fileIn (@"{TEMP}");'.format(**globals())
                     sendCmdToMax(cmd)

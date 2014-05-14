@@ -8,12 +8,12 @@ Benefit from Sublime as an editor without having to enter 3ds Max everytime you 
 **Huge thanks to [Johannes](http://alfastuff.wordpress.com "Johannes") for figuring out all the
 complicated stuff! Check out his tools and scripts on his website!**
 
-I also added the MAXScript syntax coloring file from [Rogier van Etten](http://www.linkedin.com/in/frambooz "Rogier van Etten").
-Thanks to [Daniel Santana]("http://github.com/dgsantana") the plugin **now also works in Sublime 3**.
+I also added the MAXScript syntax coloring file from [Rogier van Etten](http://www.linkedin.com/in/frambooz).
+Thanks to [Daniel Santana](http://github.com/dgsantana) the plugin **now also works in Sublime 3**.
 
 How to install using Sublime Package Control
 ------------------
-If you don't have Package Control installed, get it here: [Package Control](https://sublime.wbond.net/installation#st2 "https://sublime.wbond.net/installation#st2")
+If you don't have Package Control installed, get it here: [Package Control](https://sublime.wbond.net/installation#st2)
 
 1. In Sublime start *Package Control -> Install Package*
 2. Search for **Send to 3ds Max** and hit Enter to install
@@ -43,5 +43,5 @@ Hope you like it.
 
 
 
-Original authors: [Christoph Bülter](http://www.cbuelter.de "www.cbuelter.de"), [Johannes Becker](http://alfastuff.wordpress.com "http://alfastuff.wordpress.com")
-Contributors: [Daniel Santana]("http://github.com/dgsantana")
+Original authors: [Christoph Bülter](http://www.cbuelter.de), [Johannes Becker](http://alfastuff.wordpress.com)
+Contributors: [Daniel Santana](http://github.com/dgsantana)

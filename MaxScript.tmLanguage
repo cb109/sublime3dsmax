@@ -114,7 +114,7 @@
 				</dict>
 				<dict>
 					<key>match</key>
-					<string>\b(true|false|OK|undefined)\b</string>
+					<string>\b(true|True|false|False|OK|undefined)\b</string>
 					<key>name</key>
 					<string>constant.language.maxscript</string>
 				</dict>
@@ -179,7 +179,7 @@
 						</dict>
 					</dict>
 					<key>match</key>
-					<string>(?i)\b(function|fn|rollout|struct|rcmenu|utility|plugin|button)\s+([a-zA-Z_0-9:]*)(\s+[a-zA-Z_0-9:]*)*\b</string>
+					<string>(?i)\b(function|fn|rollout|struct|rcmenu|utility|plugin)\s+([a-zA-Z_0-9:]*)(\s+[a-zA-Z_0-9:]*)*\b</string>
 					<key>name</key>
 					<string>support.function.maxscript</string>
 				</dict>

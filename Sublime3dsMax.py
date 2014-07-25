@@ -30,13 +30,13 @@ MAX_TITLE_IDENTIFIER = r"Autodesk 3ds Max"
 
 
 def isMaxscriptFile(file):
-    """ Checks if file is a maxscript by extension.
-    """
     name, ext = os.path.splitext(file)
-    if ext in (".ms", ".mcr"):
-        return True
-    else:
-        return False
+    return ext in (".ms", ".mcr")
+
+
+def isPythonFile(file):
+    name, ext = os.path.splitext(file)
+    return ext in (".py")
 
 
 def sendCmdToMax(cmd):
@@ -83,6 +83,9 @@ class SendFileToMaxCommand(sublime_plugin.TextCommand):
         if isMaxscriptFile(currentfile):
             cmd = 'fileIn (@"{currentfile}");'.format(**locals())
             sendCmdToMax(cmd)
+        elif isPythonFile(currentfile):
+            cmd = 'python.executefile (@"%s");' % currentfile
+            sendCmdToMax(cmd)
         else:
             sublime.error_message(NO_MXS_FILE)
 
@@ -92,6 +95,7 @@ class SendSelectionToMaxCommand(sublime_plugin.TextCommand):
         Selection is extended to full line(s).
     """
     def run(self, edit):
+        currentfile = self.view.file_name()
         for region in self.view.sel():
             text = None
 
@@ -111,7 +115,11 @@ class SendSelectionToMaxCommand(sublime_plugin.TextCommand):
                 regiontext = self.view.substr(self.view.line(region))
                 saveToTempFile(regiontext)
                 if os.path.exists(TEMP):
-                    cmd = r'fileIn (@"{TEMP}");'.format(**globals())
+                    if currentfile:
+                        if isMaxscriptFile(currentfile):
+                            cmd = 'fileIn (@"%s");' % TEMP
+                    else:
+                        cmd = 'python.executefile (@"%s");' % TEMP
                     sendCmdToMax(cmd)
                 else:
                     sublime.error_message(NO_TEMP)

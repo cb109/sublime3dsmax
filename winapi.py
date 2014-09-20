@@ -527,9 +527,12 @@ class Window(object):
         for w in [Window(h) for h in EnumWindows()]:
             window_text = w.get_text()
 
-            # Handle special characters
+            # Handle special characters in ST2
             if window_text:
-                window_text = unicode(window_text, "latin1")
+                try:
+                    window_text = unicode(window_text, "latin1")
+                except:
+                    pass
 
             if window_text is not None and text in window_text:
                 return w

@@ -10,6 +10,7 @@ complicated stuff! Check out his tools and scripts on his website!**
 
 I also added the MAXScript syntax coloring file from [Rogier van Etten](http://www.linkedin.com/in/frambooz).
 Thanks to [Daniel Santana](http://github.com/dgsantana) the plugin **now also works in Sublime 3**.
+Cheers to Luca Faggion for adding support for autocompletions of the MAXScript API keywords.
 
 How to install using Sublime Package Control
 ------------------
@@ -44,4 +45,4 @@ Hope you like it.
 
 
 -Original authors: [Christoph Bülter](http://www.cbuelter.de "www.cbuelter.de"), [Johannes Becker](http://alfastuff.wordpress.com "http://alfastuff.wordpress.com")
--Contributors: [Daniel Santana]("http://github.com/dgsantana"), [Christian Deiß]("http://de.linkedin.com/pub/christian-dei%C3%9F/2a/915/ba5")
+-Contributors: [Daniel Santana]("http://github.com/dgsantana"), [Christian Deiß]("http://de.linkedin.com/pub/christian-dei%C3%9F/2a/915/ba5"), Luca Faggion

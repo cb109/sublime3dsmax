@@ -25,6 +25,7 @@ NO_TEMP = r"Sublime3dsMax: Could not write to temp file"
 NOT_SAVED = r"Sublime3dsMax: File must be saved before sending to 3ds Max"
 MAX_NOT_FOUND = r"Sublime3dsMax: Could not find a 3ds max instance."
 RECORDER_NOT_FOUND = r"Sublime3dsMax: Could not find MAXScript Macro Recorder"
+NO_FILE = r"Sublime3dsMax: No file currently open"
 
 MAX_TITLE_IDENTIFIER = r"Autodesk 3ds Max"
 
@@ -118,8 +119,10 @@ class SendSelectionToMaxCommand(sublime_plugin.TextCommand):
                     if currentfile:
                         if isMaxscriptFile(currentfile):
                             cmd = 'fileIn (@"%s");' % TEMP
+                        else:
+                            cmd = 'python.executefile (@"%s");' % TEMP
+                        sendCmdToMax(cmd)
                     else:
-                        cmd = 'python.executefile (@"%s");' % TEMP
-                    sendCmdToMax(cmd)
+                        sublime.error_message(NO_FILE)
                 else:
                     sublime.error_message(NO_TEMP)

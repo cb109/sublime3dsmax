@@ -82,10 +82,10 @@ class SendFileToMaxCommand(sublime_plugin.TextCommand):
             return
 
         if isMaxscriptFile(currentfile):
-            cmd = 'fileIn (@"{currentfile}");'.format(**locals())
+            cmd = 'fileIn (@"{currentfile}")\r\n'.format(**locals())
             sendCmdToMax(cmd)
         elif isPythonFile(currentfile):
-            cmd = 'python.executefile (@"%s");' % currentfile
+            cmd = 'python.executefile (@"%s")\r\n' % currentfile
             sendCmdToMax(cmd)
         else:
             sublime.error_message(NO_MXS_FILE)
@@ -118,9 +118,9 @@ class SendSelectionToMaxCommand(sublime_plugin.TextCommand):
                 if os.path.exists(TEMP):
                     if currentfile:
                         if isMaxscriptFile(currentfile):
-                            cmd = 'fileIn (@"%s");' % TEMP
+                            cmd = 'fileIn (@"%s")\r\n' % TEMP
                         else:
-                            cmd = 'python.executefile (@"%s");' % TEMP
+                            cmd = 'python.executefile (@"%s")\r\n' % TEMP
                         sendCmdToMax(cmd)
                     else:
                         sublime.error_message(NO_FILE)

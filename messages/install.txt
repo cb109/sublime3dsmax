@@ -12,3 +12,13 @@ Website:
 
 
 Changelog:
+
+    0.8.2
+        - feat : Add tags for automatic update propagation.
+        - feat : Add install and update messages.
+        - feat : Readd block comment support and add spaces in between
+                 the block start and end tokens.
+        - bug  : Fix missing color coding for > and < operators.
+
+    0.8.1
+        - feat : Make return value of filein appear on new line.

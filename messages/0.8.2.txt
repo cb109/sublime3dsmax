@@ -1,0 +1,7 @@
+
+    0.8.2
+        - feat : Add tags for automatic update propagation.
+        - feat : Add install and update messages.
+        - feat : Readd block comment support and add spaces in between
+                 the block start and end toklens.
+        - bug  : Fix missing color coding for > and < operators.

@@ -1,0 +1,14 @@
+ __                  __
+(_  _ _  _|  |_ _     _) _| _  |\/| _
+__)(-| )(_|  |_(_)   __)(_|_)  |  |(_|)(
+________________________________________
+
+Use Sublime for MAXScript Development with 3ds Max.
+
+
+Website:
+
+    https://bitbucket.org/cb109/sublime3dsmax
+
+
+Changelog:

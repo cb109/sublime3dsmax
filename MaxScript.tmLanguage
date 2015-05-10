@@ -160,6 +160,10 @@
 			<key>patterns</key>
 			<array>
 				<dict>
+					<key>name</key>
+					<string>support.function.maxscript.custom</string>
+					<key>match</key>
+					<string>(?i)\b(function|fn|rollout|struct|rcmenu|utility|plugin)\s+([a-zA-Z_0-9:]*)(\s+[a-zA-Z_0-9:]*)*\b</string>
 					<key>captures</key>
 					<dict>
 						<key>1</key>
@@ -178,12 +182,12 @@
 							<string>variable.parameter.maxscript</string>
 						</dict>
 					</dict>
-					<key>match</key>
-					<string>(?i)\b(function|fn|rollout|struct|rcmenu|utility|plugin)\s+([a-zA-Z_0-9:]*)(\s+[a-zA-Z_0-9:]*)*\b</string>
-					<key>name</key>
-					<string>support.function.maxscript</string>
 				</dict>
 				<dict>
+					<key>name</key>
+					<string>support.function.maxscript.custom</string>
+					<key>match</key>
+					<string>\b(on)\s+([a-zA-Z_0-9]+)\s+([a-zA-Z_0-9]+)\b</string>
 					<key>captures</key>
 					<dict>
 						<key>1</key>
@@ -202,10 +206,6 @@
 							<string>support.other.maxscript</string>
 						</dict>
 					</dict>
-					<key>match</key>
-					<string>\b(on)\s+([a-zA-Z_0-9]+)\s+([a-zA-Z_0-9]+)\b</string>
-					<key>name</key>
-					<string>support.function.maxscript</string>
 				</dict>
 			</array>
 		</dict>

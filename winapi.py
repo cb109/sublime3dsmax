@@ -484,8 +484,10 @@ class Window(object):
         for w in childs:
             wndText = w.get_text()
             wndCls = w.get_classname()
-            #print(wndText)
-            #print(wndCls)
+            #print ("wndText="+str(wndText)+" wndCls="+wndCls)
+
+            #bug: wndText can be null and it fails when searching for text
+
             if text is None and cls is None:
                 return None
             if text is None and cls in wndCls:

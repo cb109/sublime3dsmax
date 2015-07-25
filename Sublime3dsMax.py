@@ -45,12 +45,28 @@ def sendCmdToMax(cmd):
     the mini macrorecorder by class. Sends a string command
     and a return-key buttonstroke to it to evaluate the command.
     """
+
     gMainWindow = winapi.Window.find_window(MAX_TITLE_IDENTIFIER)
-    gMiniMacroRecorder = None
-    if gMainWindow is not None:
-        gMiniMacroRecorder = gMainWindow.find_child(text=None, cls="MXS_Scintilla")
-    else:
+    if gMainWindow is None:
         sublime.error_message(MAX_NOT_FOUND)
+        return
+
+    gMiniMacroRecorder = gMainWindow.find_child(text=None, cls="MXS_Scintilla")
+    
+    if gMiniMacroRecorder is None:
+        # old max versions has the mini macrorecorder as a rich edit box inside a status panel
+        gStatusPanel = gMainWindow.find_child(text=None, cls="StatusPanel")
+        if gStatusPanel is None:
+            sublime.error_message(RECORDER_NOT_FOUND)
+        gMiniMacroRecorder = gStatusPanel.find_child(text=None, cls="RICHEDIT")
+        if gMiniMacroRecorder is None:
+            sublime.error_message(RECORDER_NOT_FOUND)
+        # old max versions dont support verbatin string literals (ie: the @ sign)
+        cmd = cmd.replace("@", "")
+        cmd = cmd.replace("\\", "\\\\")
+        print (cmd)
+
+
     if gMiniMacroRecorder is not None:
         sublime.status_message('Send to 3ds Max: {cmd}'.format(**locals())[:-1])  # Cut ';'
         cmd = cmd.encode("utf-8")  # Needed for ST3!

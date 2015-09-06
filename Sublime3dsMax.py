@@ -29,18 +29,35 @@ MAX_NOT_FOUND      = PREFIX + " Could not find a 3ds max instance."
 RECORDER_NOT_FOUND = PREFIX + " Could not find MAXScript Macro Recorder"
 NO_FILE            = PREFIX + " No file currently open"
 
+python_command_template = """
+try
+    python.executefile (@"{filepath}")\r\n
+catch
+    python.run (@"{filepath}")\r\n
+"""
 
-def is_maxscriptfile(filepath):
+
+def _is_maxscriptfile(filepath):
     name, ext = os.path.splitext(filepath)
     return ext in (".ms", ".mcr")
 
 
-def is_pythonfile(filepath):
+def _is_pythonfile(filepath):
     name, ext = os.path.splitext(filepath)
     return ext in (".py")
 
 
-def send_cmd_to_max(cmd):
+def _save_to_tempfile(text):
+    """Stores code in a temporary maxscript file."""
+    with open(TEMP, "w") as tempfile:
+        if ST3:
+            tempfile.write(text)
+        else:
+            text = text.encode("utf-8")
+            tempfile.write(text)
+
+
+def _send_cmd_to_max(cmd):
     """Tries to find the 3ds Max window by title and the mini
     macrorecorder by class.
 
@@ -79,16 +96,6 @@ def send_cmd_to_max(cmd):
     minimacrorecorder = None
 
 
-def save_to_tempfile(text):
-    """Stores code in a temporary maxscript file."""
-    with open(TEMP, "w") as tempfile:
-        if ST3:
-            tempfile.write(text)
-        else:
-            text = text.encode("utf-8")
-            tempfile.write(text)
-
-
 class SendFileToMaxCommand(sublime_plugin.TextCommand):
     """Sends the current file by using 'fileIn <file>'."""
 
@@ -98,13 +105,13 @@ class SendFileToMaxCommand(sublime_plugin.TextCommand):
             sublime.error_message(NOT_SAVED)
             return
 
-        if is_maxscriptfile(currentfile):
+        if _is_maxscriptfile(currentfile):
             cmd = 'fileIn (@"{currentfile}")\r\n'.format(**locals())
-            send_cmd_to_max(cmd)
+            _send_cmd_to_max(cmd)
 
-        elif is_pythonfile(currentfile):
-            cmd = 'python.executefile (@"%s")\r\n' % currentfile
-            send_cmd_to_max(cmd)
+        elif _is_pythonfile(currentfile):
+            cmd = python_command_template.format(filepath=currentfile)
+            _send_cmd_to_max(cmd)
 
         else:
             sublime.error_message(NO_MXS_FILE)
@@ -126,7 +133,7 @@ class SendSelectionToMaxCommand(sublime_plugin.TextCommand):
                 line = self.view.line(region)
                 text = self.view.substr(line)
                 cmd = '{text};'.format(**locals())
-                send_cmd_to_max(cmd)
+                _send_cmd_to_max(cmd)
 
             # Else send all lines where something is selected
             # This only works by saving to a tempfile first,
@@ -136,14 +143,14 @@ class SendSelectionToMaxCommand(sublime_plugin.TextCommand):
                 self.view.run_command("expand_selection",
                                      {"to": line.begin()})
                 regiontext = self.view.substr(self.view.line(region))
-                save_to_tempfile(regiontext)
+                _save_to_tempfile(regiontext)
                 if os.path.exists(TEMP):
                     if currentfile:
-                        if is_maxscriptfile(currentfile):
+                        if _is_maxscriptfile(currentfile):
                             cmd = 'fileIn (@"%s")\r\n' % TEMP
                         else:
                             cmd = 'python.executefile (@"%s")\r\n' % TEMP
-                        send_cmd_to_max(cmd)
+                        _send_cmd_to_max(cmd)
                     else:
                         sublime.error_message(NO_FILE)
                 else:

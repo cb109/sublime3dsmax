@@ -45,36 +45,35 @@ def sendCmdToMax(cmd):
     the mini macrorecorder by class. Sends a string command
     and a return-key buttonstroke to it to evaluate the command.
     """
-
     gMainWindow = winapi.Window.find_window(MAX_TITLE_IDENTIFIER)
     if gMainWindow is None:
         sublime.error_message(MAX_NOT_FOUND)
         return
 
     gMiniMacroRecorder = gMainWindow.find_child(text=None, cls="MXS_Scintilla")
-    
+    # If the mini macrorecorder was not found, there is a chance we are
+    # in an ancient Max version (e.g. 9) where the recorder etc. was not
+    # scintilla based, but instead a rich edit box.
     if gMiniMacroRecorder is None:
-        # old max versions has the mini macrorecorder as a rich edit box inside a status panel
         gStatusPanel = gMainWindow.find_child(text=None, cls="StatusPanel")
         if gStatusPanel is None:
             sublime.error_message(RECORDER_NOT_FOUND)
+            return
         gMiniMacroRecorder = gStatusPanel.find_child(text=None, cls="RICHEDIT")
-        if gMiniMacroRecorder is None:
-            sublime.error_message(RECORDER_NOT_FOUND)
-        # old max versions dont support verbatin string literals (ie: the @ sign)
+        # Verbatim strings (the @ at sign) are also not yet supported.
         cmd = cmd.replace("@", "")
         cmd = cmd.replace("\\", "\\\\")
-        print (cmd)
 
-
-    if gMiniMacroRecorder is not None:
-        sublime.status_message('Send to 3ds Max: {cmd}'.format(**locals())[:-1])  # Cut ';'
-        cmd = cmd.encode("utf-8")  # Needed for ST3!
-        gMiniMacroRecorder.send(winapi.WM_SETTEXT, 0, cmd)
-        gMiniMacroRecorder.send(winapi.WM_CHAR, winapi.VK_RETURN, 0)
-        gMiniMacroRecorder = None
-    else:
+    if gMiniMacroRecorder is None:
         sublime.error_message(RECORDER_NOT_FOUND)
+        return
+
+    sublime.status_message('Send to 3ds Max: {cmd}'.format(
+        **locals())[:-1])  # Cut ';'
+    cmd = cmd.encode("utf-8")  # Needed for ST3!
+    gMiniMacroRecorder.send(winapi.WM_SETTEXT, 0, cmd)
+    gMiniMacroRecorder.send(winapi.WM_CHAR, winapi.VK_RETURN, 0)
+    gMiniMacroRecorder = None
 
 
 def saveToTempFile(text):

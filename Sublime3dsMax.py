@@ -46,19 +46,34 @@ def sendCmdToMax(cmd):
     and a return-key buttonstroke to it to evaluate the command.
     """
     gMainWindow = winapi.Window.find_window(MAX_TITLE_IDENTIFIER)
-    gMiniMacroRecorder = None
-    if gMainWindow is not None:
-        gMiniMacroRecorder = gMainWindow.find_child(text=None, cls="MXS_Scintilla")
-    else:
+    if gMainWindow is None:
         sublime.error_message(MAX_NOT_FOUND)
-    if gMiniMacroRecorder is not None:
-        sublime.status_message('Send to 3ds Max: {cmd}'.format(**locals())[:-1])  # Cut ';'
-        cmd = cmd.encode("utf-8")  # Needed for ST3!
-        gMiniMacroRecorder.send(winapi.WM_SETTEXT, 0, cmd)
-        gMiniMacroRecorder.send(winapi.WM_CHAR, winapi.VK_RETURN, 0)
-        gMiniMacroRecorder = None
-    else:
+        return
+
+    gMiniMacroRecorder = gMainWindow.find_child(text=None, cls="MXS_Scintilla")
+    # If the mini macrorecorder was not found, there is a chance we are
+    # in an ancient Max version (e.g. 9) where the recorder etc. was not
+    # scintilla based, but instead a rich edit box.
+    if gMiniMacroRecorder is None:
+        gStatusPanel = gMainWindow.find_child(text=None, cls="StatusPanel")
+        if gStatusPanel is None:
+            sublime.error_message(RECORDER_NOT_FOUND)
+            return
+        gMiniMacroRecorder = gStatusPanel.find_child(text=None, cls="RICHEDIT")
+        # Verbatim strings (the @ at sign) are also not yet supported.
+        cmd = cmd.replace("@", "")
+        cmd = cmd.replace("\\", "\\\\")
+
+    if gMiniMacroRecorder is None:
         sublime.error_message(RECORDER_NOT_FOUND)
+        return
+
+    sublime.status_message('Send to 3ds Max: {cmd}'.format(
+        **locals())[:-1])  # Cut ';'
+    cmd = cmd.encode("utf-8")  # Needed for ST3!
+    gMiniMacroRecorder.send(winapi.WM_SETTEXT, 0, cmd)
+    gMiniMacroRecorder.send(winapi.WM_CHAR, winapi.VK_RETURN, 0)
+    gMiniMacroRecorder = None
 
 
 def saveToTempFile(text):

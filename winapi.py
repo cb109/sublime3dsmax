@@ -243,7 +243,6 @@ class __WindowEnumerator (object):
         self.hwnd = list()
 
     def __call__(self, hwnd, lParam):
-##        print hwnd  # XXX DEBUG
         self.hwnd.append(hwnd)
         return TRUE
 
@@ -484,10 +483,6 @@ class Window(object):
         for w in childs:
             wndText = w.get_text()
             wndCls = w.get_classname()
-            #print ("wndText="+str(wndText)+" wndCls="+wndCls)
-
-            #bug: wndText can be null and it fails when searching for text
-
             if text is None and cls is None:
                 return None
             if text is None and cls in wndCls:
@@ -519,9 +514,6 @@ class Window(object):
             Typically a value of C{0} means an error occured. You can get the
             error code by calling L{win32.GetLastError}.
         """
-        #print(uMsg)
-        #print(wParam)
-        #print(lParam)
         return SendMessage(self.get_handle(), uMsg, wParam, lParam)
 
     @staticmethod

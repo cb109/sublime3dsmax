@@ -54,9 +54,9 @@ def send_cmd_to_max(cmd):
         return
 
     minimacrorecorder = mainwindow.find_child(text=None, cls="MXS_Scintilla")
-    # If the mini macrorecorder was not found, there is a chance we are
-    # in an ancient Max version (e.g. 9) where the recorder etc. was not
-    # scintilla based, but instead a rich edit box.
+    # If the mini macrorecorder was not found, there is still a chance
+    # we are targetting an ancient Max version (e.g. 9) where the
+    # listener was not Scintilla based, but instead a rich edit box.
     if minimacrorecorder is None:
         statuspanel = mainwindow.find_child(text=None, cls="StatusPanel")
         if statuspanel is None:
@@ -101,9 +101,11 @@ class SendFileToMaxCommand(sublime_plugin.TextCommand):
         if is_maxscriptfile(currentfile):
             cmd = 'fileIn (@"{currentfile}")\r\n'.format(**locals())
             send_cmd_to_max(cmd)
+
         elif is_pythonfile(currentfile):
             cmd = 'python.executefile (@"%s")\r\n' % currentfile
             send_cmd_to_max(cmd)
+
         else:
             sublime.error_message(NO_MXS_FILE)
 

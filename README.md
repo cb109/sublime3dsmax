@@ -44,5 +44,13 @@ Hope you like it.
 
 
 
--Original authors: [Christoph Bülter](http://www.cbuelter.de "www.cbuelter.de"), [Johannes Becker](http://alfastuff.wordpress.com "http://alfastuff.wordpress.com")
--Contributors: [Daniel Santana]("http://github.com/dgsantana"), [Christian Deiß]("http://de.linkedin.com/pub/christian-dei%C3%9F/2a/915/ba5"), Luca Faggion
+Original authors:
+- [Christoph Bülter](http://www.cbuelter.de)
+- [Johannes Becker](http://alfastuff.wordpress.com)
+
+Contributors:
+- [Rogier van Etten](http://twitter.com/captainkeytar)
+- [Daniel Santana](http://github.com/dgsantana)
+- [Christian Deiß](http://de.linkedin.com/pub/christian-dei%C3%9F/2a/915/ba5)
+- Luca Faggion
+- [Ettore Pancini](http://bitbucket.org/epancini)

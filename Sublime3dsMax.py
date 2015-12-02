@@ -164,11 +164,9 @@ class MaxScriptAutoCompletions(sublime_plugin.EventListener):
     loaded = False
 
     #read the api file and populate the completion_list
-    def on_modified(self,view):
+    def on_load(self,view):
         if view.match_selector(view.id(),"source.maxscript") and self.loaded != True:
-            with open(APIPATH) as apifile:
-                for line in apifile:
-                    self.completions_list.append(line.rstrip().split("\n")[0])
+            self.completions_list = [line.rstrip('\n') for line in open(APIPATH)]
             self.loaded = True
 
     def on_query_completions(self, view, prefix, locations):

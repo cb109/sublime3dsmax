@@ -1,7 +1,7 @@
 <snippet>
     <content><![CDATA[on ${1:Control} ${2:Action} do
 	(
-   		--Event body
+   	    --Event body
 	)]]></content>
     <!-- Optional: Tab trigger to activate the snippet -->
     <tabTrigger>on</tabTrigger>

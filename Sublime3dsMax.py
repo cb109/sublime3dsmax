@@ -13,6 +13,7 @@ if ST3:
     from . import winapi
 else:
     import winapi
+    import Filter_Manager
 
 #find the current api file 
 APIPATH =  os.path.dirname(os.path.realpath(__file__)) + "\maxscript.api"
@@ -158,12 +159,13 @@ class SendSelectionToMaxCommand(sublime_plugin.TextCommand):
                 else:
                     sublime.error_message(NO_TEMP)
 
-class MaxScriptAutoCompletions(sublime_plugin.EventListener):
+import Filter_Manager
+
+class Completions(sublime_plugin.EventListener):
 
     completions_list = []
     loaded = False
 
-    #read the api file and populate the completion_list
     def on_load(self,view):
         if view.match_selector(view.id(),"source.maxscript") and self.loaded != True:
             self.completions_list = [line.rstrip('\n') for line in open(APIPATH)]
@@ -176,8 +178,9 @@ class MaxScriptAutoCompletions(sublime_plugin.EventListener):
             compDefault = set(view.extract_completions(prefix))
             completions = set(list(self.completions_list))
             compDefault = compDefault - completions
-            completions = list(compDefault) + list(completions) 
+            completions = list(compDefault) + list(completions)
+
             completions = [(attr,attr) for attr in completions]
+            #Apply filters 
+            completions = Filter_Manager.CompletionsFilter.ApplyFilters(view, prefix, locations, completions)
             return completions
-        else:
-            return view.extract_completions(prefix)

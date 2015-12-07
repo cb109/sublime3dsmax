@@ -1,9 +1,0 @@
-<snippet>
-    <content><![CDATA[if ${1:condition} then]]></content>
-    <!-- Optional: Tab trigger to activate the snippet -->
-    <tabTrigger>if</tabTrigger>
-    <!-- Optional: Scope the tab trigger will be active in -->
-    <scope>source.maxscript</scope>
-    <!-- Optional: Description to show in the menu -->
-    <description>if Statement</description>
-</snippet>

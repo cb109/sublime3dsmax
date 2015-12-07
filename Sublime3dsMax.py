@@ -1,33 +1,38 @@
-"""Send maxscript files or codelines to 3ds Max."""
+"""Send maxscript/python files or codelines to 3ds Max."""
 
 from __future__ import unicode_literals
 
 import os
+
 import sublime
 import sublime_plugin
 
-# Import depending on Sublime version
+# Import depending on Sublime version.
 version = int(sublime.version())
-ST3 = version > 3000 or version == ""
+ST3 = version > 3000 or not version
 if ST3:
     from . import winapi
+    from . import filters
 else:
     import winapi
+    import filters
 
 
-# Create the tempfile in "Packages" (ST2) / "Installed Packages" (ST3)
+APIPATH = os.path.dirname(os.path.realpath(__file__)) + "\maxscript.api"
+
+# Create the tempfile in "Packages" (ST2) / "Installed Packages" (ST3).
 TEMP = os.path.join(
     os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
     "Send_to_3ds_Max_Temp.ms")
 
-TITLE_IDENTIFIER   = "Autodesk 3ds Max"
-PREFIX             = "Sublime3dsMax:"
-NO_MXS_FILE        = PREFIX + " File is not a MAXScript file (*.ms, *.mcr)"
-NO_TEMP            = PREFIX + " Could not write to temp file"
-NOT_SAVED          = PREFIX + " File must be saved before sending to 3ds Max"
-MAX_NOT_FOUND      = PREFIX + " Could not find a 3ds max instance."
+TITLE_IDENTIFIER = "Autodesk 3ds Max"
+PREFIX = "Sublime3dsMax:"
+NO_MXS_FILE = PREFIX + " File is not a MAXScript file (*.ms, *.mcr)"
+NO_TEMP = PREFIX + " Could not write to temp file"
+NOT_SAVED = PREFIX + " File must be saved before sending to 3ds Max"
+MAX_NOT_FOUND = PREFIX + " Could not find a 3ds max instance."
 RECORDER_NOT_FOUND = PREFIX + " Could not find MAXScript Macro Recorder"
-NO_FILE            = PREFIX + " No file currently open"
+NO_FILE = PREFIX + " No file currently open"
 
 python_command_template = """
 try
@@ -39,7 +44,7 @@ catch
 
 def _is_maxscriptfile(filepath):
     name, ext = os.path.splitext(filepath)
-    return ext in (".ms", ".mcr")
+    return ext in (".ms", ".mcr", ".mse", ".mzp")
 
 
 def _is_pythonfile(filepath):
@@ -141,7 +146,7 @@ class SendSelectionToMaxCommand(sublime_plugin.TextCommand):
             else:
                 line = self.view.line(region)
                 self.view.run_command("expand_selection",
-                                     {"to": line.begin()})
+                                      {"to": line.begin()})
                 regiontext = self.view.substr(self.view.line(region))
                 _save_to_tempfile(regiontext)
                 if os.path.exists(TEMP):
@@ -155,3 +160,30 @@ class SendSelectionToMaxCommand(sublime_plugin.TextCommand):
                         sublime.error_message(NO_FILE)
                 else:
                     sublime.error_message(NO_TEMP)
+
+
+class Completions(sublime_plugin.EventListener):
+    """Handle auto-completion from file content and the official API."""
+
+    completions_list = []
+
+    def is_mxs(self, view):
+        return view.match_selector(view.id(), "source.maxscript")
+
+    def on_activated(self, view):
+        if self.is_mxs(view) and not self.completions_list:
+            self.completions_list = [line.rstrip('\n')
+                                     for line in open(APIPATH)]
+
+    def on_query_completions(self, view, prefix, locations):
+        if self.is_mxs(view):
+            self.completions_list = [line.rstrip('\n')
+                                     for line in open(APIPATH)]
+            comp_default = set(view.extract_completions(prefix))
+            completions = set(list(self.completions_list))
+            comp_default = comp_default - completions
+            completions = list(comp_default) + list(completions)
+            completions = [(attr, attr) for attr in completions]
+            completions = filters.manager.apply_filters(
+                view, prefix, locations, completions)
+            return completions

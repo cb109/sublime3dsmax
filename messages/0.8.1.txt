@@ -8,7 +8,7 @@ Use Sublime for MAXScript Development with 3ds Max.
 
 Website:
 
-    https://bitbucket.org/cb109/sublime3dsmax
+    https://github.org/cb109/sublime3dsmax
 
 
 Changelog:

@@ -1,0 +1,14 @@
+<snippet>
+    <content><![CDATA[if ${1:condition} then (
+    ${2:-- Do something.}
+)
+else (
+    ${3:-- Do something else.}
+)]]></content>
+    <!-- Optional: Tab trigger to activate the snippet -->
+    <tabTrigger>if</tabTrigger>
+    <!-- Optional: Scope the tab trigger will be active in -->
+    <scope>source.maxscript</scope>
+    <!-- Optional: Description to show in the menu -->
+    <description>If-Then-Else Block</description>
+</snippet>

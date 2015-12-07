@@ -17,6 +17,11 @@ Changelog:
         - feat : Add autocompletion for file content and maxscript API.
         - feat : Add snippets for common code blocks like if-do, if-then-else,
                  function, rollout, struct etc.
+
+    0.8.4
+        - feat : Add compatibility for 3ds Max 9.
+        - feat : Add compatibility for Py3dsMax.
+
     0.8.2
         - feat : Add tags for automatic update propagation.
         - feat : Add install and update messages.

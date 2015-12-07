@@ -13,7 +13,10 @@ if ST3:
     from . import winapi
 else:
     import winapi
+    import Filter_Manager
 
+#find the current api file 
+APIPATH =  os.path.dirname(os.path.realpath(__file__)) + "\maxscript.api"
 
 # Create the tempfile in "Packages" (ST2) / "Installed Packages" (ST3)
 TEMP = os.path.join(
@@ -155,3 +158,29 @@ class SendSelectionToMaxCommand(sublime_plugin.TextCommand):
                         sublime.error_message(NO_FILE)
                 else:
                     sublime.error_message(NO_TEMP)
+
+import Filter_Manager
+
+class Completions(sublime_plugin.EventListener):
+
+    completions_list = []
+    loaded = False
+
+    def on_load(self,view):
+        if view.match_selector(view.id(),"source.maxscript") and self.loaded != True:
+            self.completions_list = [line.rstrip('\n') for line in open(APIPATH)]
+            self.loaded = True
+
+    def on_query_completions(self, view, prefix, locations):
+        # execute only if we are in the correct scope
+        if view.match_selector(view.id(),"source.maxscript"):
+            # word-completions + auto-completions from maxscript api
+            compDefault = set(view.extract_completions(prefix))
+            completions = set(list(self.completions_list))
+            compDefault = compDefault - completions
+            completions = list(compDefault) + list(completions)
+
+            completions = [(attr,attr) for attr in completions]
+            #Apply filters 
+            completions = Filter_Manager.CompletionsFilter.ApplyFilters(view, prefix, locations, completions)
+            return completions

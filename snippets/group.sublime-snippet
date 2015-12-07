@@ -1,0 +1,13 @@
+<snippet>
+    <content><![CDATA[group "${1:Group Name}"
+(
+    -- group $1 body
+)
+    	]]></content>
+    <!-- Optional: Tab trigger to activate the snippet -->
+    <tabTrigger>group</tabTrigger>
+    <!-- Optional: Scope the tab trigger will be active in -->
+    <scope>source.maxscript</scope>
+    <!-- Optional: Description to show in the menu -->
+    <description>Rolloutp group Snippet</description>
+</snippet>

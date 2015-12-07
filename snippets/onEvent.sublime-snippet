@@ -1,0 +1,12 @@
+<snippet>
+    <content><![CDATA[on ${1:Control} ${2:Action} do
+	(
+   	    --Event body
+	)]]></content>
+    <!-- Optional: Tab trigger to activate the snippet -->
+    <tabTrigger>on</tabTrigger>
+    <!-- Optional: Scope the tab trigger will be active in -->
+    <scope>source.maxscript</scope>
+    <!-- Optional: Description to show in the menu -->
+    <description>Event Snippet</description>
+</snippet>\

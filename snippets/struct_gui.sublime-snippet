@@ -1,0 +1,32 @@
+<snippet>
+    <content><![CDATA[try($1.close())catch()
+
+struct ${1:structName} (
+    ro = rollout ro "$1" (
+        local backend
+    ),
+
+    fn close = (
+        try(
+            destroyDialog this.ro
+        )
+        catch()
+    ),
+
+    fn show = (
+        this.close()
+        createDialog this.ro
+        this.ro.backend = this
+    )
+)
+
+global $1 = $1()
+$1.show()
+]]></content>
+    <!-- Optional: Tab trigger to activate the snippet -->
+    <tabTrigger>struct</tabTrigger>
+    <!-- Optional: Scope the tab trigger will be active in -->
+    <scope>source.maxscript</scope>
+    <!-- Optional: Description to show in the menu -->
+    <description>Struct GUI Tool</description>
+</snippet>

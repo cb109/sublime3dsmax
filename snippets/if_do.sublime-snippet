@@ -1,11 +1,11 @@
 <snippet>
-    <content><![CDATA[fn ${1:functionName} ${2:args} = (
-   -- Function $1 body
+    <content><![CDATA[if ${1:condition} do (
+    ${2:-- Do something.}
 )]]></content>
     <!-- Optional: Tab trigger to activate the snippet -->
-    <tabTrigger>fn</tabTrigger>
+    <tabTrigger>if</tabTrigger>
     <!-- Optional: Scope the tab trigger will be active in -->
     <scope>source.maxscript</scope>
     <!-- Optional: Description to show in the menu -->
-    <description>Fn Definition</description>
+    <description>If-Do Block</description>
 </snippet>

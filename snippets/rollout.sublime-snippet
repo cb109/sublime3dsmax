@@ -1,13 +1,17 @@
 <snippet>
-    <content><![CDATA[rollout ${1:rolloutName} "$1"
-(
-    -- Rollout $1 body
+    <content><![CDATA[try(destroyDialog $1)catch()
+
+rollout ${1:rolloutName} "$1" (
+    ${2:-- Rollout body.}
 )
-    	]]></content>
+
+createDialog $1
+]]>
+</content>
     <!-- Optional: Tab trigger to activate the snippet -->
-    <tabTrigger>rollout</tabTrigger>
+    <tabTrigger>ro</tabTrigger>
     <!-- Optional: Scope the tab trigger will be active in -->
     <scope>source.maxscript</scope>
     <!-- Optional: Description to show in the menu -->
-    <description>Rollout Snippet</description>
+    <description>Rollout Dialog Skeleton</description>
 </snippet>

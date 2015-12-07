@@ -15,7 +15,7 @@ else:
     import winapi
     import Filter_Manager
 
-#find the current api file 
+#find the current api file
 APIPATH =  os.path.dirname(os.path.realpath(__file__)) + "\maxscript.api"
 
 # Create the tempfile in "Packages" (ST2) / "Installed Packages" (ST3)
@@ -181,6 +181,6 @@ class Completions(sublime_plugin.EventListener):
             completions = list(compDefault) + list(completions)
 
             completions = [(attr,attr) for attr in completions]
-            #Apply filters 
+            #Apply filters
             completions = Filter_Manager.CompletionsFilter.ApplyFilters(view, prefix, locations, completions)
             return completions

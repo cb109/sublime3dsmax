@@ -1,12 +1,14 @@
 <snippet>
-    <content><![CDATA[on ${1:Control} ${2:Action} do
-	(
-   	    --Event body
-	)]]></content>
+    <content><![CDATA[if ${1:condition} then (
+    ${2:-- Do something.}
+)
+else (
+    ${3:-- Do something else.}
+)]]></content>
     <!-- Optional: Tab trigger to activate the snippet -->
-    <tabTrigger>on</tabTrigger>
+    <tabTrigger>if</tabTrigger>
     <!-- Optional: Scope the tab trigger will be active in -->
     <scope>source.maxscript</scope>
     <!-- Optional: Description to show in the menu -->
-    <description>Event Snippet</description>
-</snippet>\
+    <description>If-Then-Else Block</description>
+</snippet>

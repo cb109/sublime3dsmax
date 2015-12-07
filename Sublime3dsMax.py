@@ -3,6 +3,7 @@
 from __future__ import unicode_literals
 
 import os
+
 import sublime
 import sublime_plugin
 
@@ -11,10 +12,11 @@ version = int(sublime.version())
 ST3 = version > 3000 or not version
 if ST3:
     from . import winapi
+    from . import filters
 else:
     import winapi
+    import filters
 
-import Filter_Manager
 
 APIPATH = os.path.dirname(os.path.realpath(__file__)) + "\maxscript.api"
 
@@ -164,25 +166,24 @@ class Completions(sublime_plugin.EventListener):
     """Handle auto-completion from file content and the official API."""
 
     completions_list = []
-    loaded = False
 
-    def on_load(self, view):
-        mxs_view = view.match_selector(view.id(), "source.maxscript")
-        if mxs_view and not self.loaded:
+    def is_mxs(self, view):
+        return view.match_selector(view.id(), "source.maxscript")
+
+    def on_activated(self, view):
+        if self.is_mxs(view) and not self.completions_list:
             self.completions_list = [line.rstrip('\n')
                                      for line in open(APIPATH)]
-            self.loaded = True
 
     def on_query_completions(self, view, prefix, locations):
-        # Execute only if we are in the correct scope.
-        if view.match_selector(view.id(), "source.maxscript"):
-            # Word-completions + auto-completions from maxscript API.
+        if self.is_mxs(view):
+            self.completions_list = [line.rstrip('\n')
+                                     for line in open(APIPATH)]
             comp_default = set(view.extract_completions(prefix))
             completions = set(list(self.completions_list))
             comp_default = comp_default - completions
             completions = list(comp_default) + list(completions)
             completions = [(attr, attr) for attr in completions]
-            # Apply filters.
-            completions = Filter_Manager.CompletionsFilter.ApplyFilters(
+            completions = filters.manager.apply_filters(
                 view, prefix, locations, completions)
             return completions

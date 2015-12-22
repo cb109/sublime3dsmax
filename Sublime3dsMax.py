@@ -9,7 +9,7 @@ import sublime_plugin
 
 # Import depending on Sublime version.
 version = int(sublime.version())
-ST3 = version > 3000 or not version
+ST3 = version >= 3000
 if ST3:
     from . import winapi
     from . import filters
@@ -21,7 +21,7 @@ else:
 APIPATH = os.path.dirname(os.path.realpath(__file__)) + "\maxscript.api"
 
 # Create the tempfile in "Packages" (ST2) / "Installed Packages" (ST3).
-TEMP = os.path.join(
+TEMPFILE = os.path.join(
     os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
     "Send_to_3ds_Max_Temp.ms")
 
@@ -43,18 +43,20 @@ catch
 
 
 def _is_maxscriptfile(filepath):
+    """Return if the file uses one of the MAXScript file extensions."""
     name, ext = os.path.splitext(filepath)
     return ext in (".ms", ".mcr", ".mse", ".mzp")
 
 
 def _is_pythonfile(filepath):
+    """Return if the file uses a Python file extension."""
     name, ext = os.path.splitext(filepath)
     return ext in (".py")
 
 
 def _save_to_tempfile(text):
-    """Stores code in a temporary maxscript file."""
-    with open(TEMP, "w") as tempfile:
+    """Store code in a temporary maxscript file."""
+    with open(TEMPFILE, "w") as tempfile:
         if ST3:
             tempfile.write(text)
         else:
@@ -63,7 +65,7 @@ def _save_to_tempfile(text):
 
 
 def _send_cmd_to_max(cmd):
-    """Tries to find the 3ds Max window by title and the mini
+    """Try to find the 3ds Max window by title and the mini
     macrorecorder by class.
 
     Sends a string command and a return-key buttonstroke to it to
@@ -102,7 +104,7 @@ def _send_cmd_to_max(cmd):
 
 
 class SendFileToMaxCommand(sublime_plugin.TextCommand):
-    """Sends the current file by using 'fileIn <file>'."""
+    """Send the current file by using 'fileIn <file>'."""
 
     def run(self, edit):
         currentfile = self.view.file_name()
@@ -123,7 +125,7 @@ class SendFileToMaxCommand(sublime_plugin.TextCommand):
 
 
 class SendSelectionToMaxCommand(sublime_plugin.TextCommand):
-    """Sends selected part of the file.
+    """Send selected part of the file.
 
     Selection is extended to full line(s).
 
@@ -149,12 +151,12 @@ class SendSelectionToMaxCommand(sublime_plugin.TextCommand):
                                       {"to": line.begin()})
                 regiontext = self.view.substr(self.view.line(region))
                 _save_to_tempfile(regiontext)
-                if os.path.exists(TEMP):
+                if os.path.exists(TEMPFILE):
                     if currentfile:
                         if _is_maxscriptfile(currentfile):
-                            cmd = 'fileIn (@"%s")\r\n' % TEMP
+                            cmd = 'fileIn (@"%s")\r\n' % TEMPFILE
                         else:
-                            cmd = 'python.executefile (@"%s")\r\n' % TEMP
+                            cmd = 'python.executefile (@"%s")\r\n' % TEMPFILE
                         _send_cmd_to_max(cmd)
                     else:
                         sublime.error_message(NO_FILE)
@@ -187,3 +189,12 @@ class Completions(sublime_plugin.EventListener):
             completions = filters.manager.apply_filters(
                 view, prefix, locations, completions)
             return completions
+
+
+def plugin_unloaded():
+    """Perform cleanup work."""
+    if os.path.isfile(TEMPFILE):
+        try:
+            os.remove(TEMPFILE)
+        except OSError:
+            pass

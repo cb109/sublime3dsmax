@@ -9,7 +9,7 @@ import sublime_plugin
 
 # Import depending on Sublime version.
 version = int(sublime.version())
-ST3 = version > 3000 or not version
+ST3 = version >= 3000
 if ST3:
     from . import winapi
     from . import filters

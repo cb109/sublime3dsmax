@@ -43,17 +43,19 @@ catch
 
 
 def _is_maxscriptfile(filepath):
+    """Return if the file uses one of the MAXScript file extensions."""
     name, ext = os.path.splitext(filepath)
     return ext in (".ms", ".mcr", ".mse", ".mzp")
 
 
 def _is_pythonfile(filepath):
+    """Return if the file uses a Python file extension."""
     name, ext = os.path.splitext(filepath)
     return ext in (".py")
 
 
 def _save_to_tempfile(text):
-    """Stores code in a temporary maxscript file."""
+    """Store code in a temporary maxscript file."""
     with open(TEMPFILE, "w") as tempfile:
         if ST3:
             tempfile.write(text)
@@ -63,7 +65,7 @@ def _save_to_tempfile(text):
 
 
 def _send_cmd_to_max(cmd):
-    """Tries to find the 3ds Max window by title and the mini
+    """Try to find the 3ds Max window by title and the mini
     macrorecorder by class.
 
     Sends a string command and a return-key buttonstroke to it to
@@ -102,7 +104,7 @@ def _send_cmd_to_max(cmd):
 
 
 class SendFileToMaxCommand(sublime_plugin.TextCommand):
-    """Sends the current file by using 'fileIn <file>'."""
+    """Send the current file by using 'fileIn <file>'."""
 
     def run(self, edit):
         currentfile = self.view.file_name()
@@ -123,7 +125,7 @@ class SendFileToMaxCommand(sublime_plugin.TextCommand):
 
 
 class SendSelectionToMaxCommand(sublime_plugin.TextCommand):
-    """Sends selected part of the file.
+    """Send selected part of the file.
 
     Selection is extended to full line(s).
 

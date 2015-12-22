@@ -189,3 +189,12 @@ class Completions(sublime_plugin.EventListener):
             completions = filters.manager.apply_filters(
                 view, prefix, locations, completions)
             return completions
+
+
+def plugin_unloaded():
+    """Perform cleanup work."""
+    if os.path.isfile(TEMPFILE):
+        try:
+            os.remove(TEMPFILE)
+        except OSError:
+            pass

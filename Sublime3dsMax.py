@@ -21,7 +21,7 @@ else:
 APIPATH = os.path.dirname(os.path.realpath(__file__)) + "\maxscript.api"
 
 # Create the tempfile in "Packages" (ST2) / "Installed Packages" (ST3).
-TEMP = os.path.join(
+TEMPFILE = os.path.join(
     os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
     "Send_to_3ds_Max_Temp.ms")
 
@@ -54,7 +54,7 @@ def _is_pythonfile(filepath):
 
 def _save_to_tempfile(text):
     """Stores code in a temporary maxscript file."""
-    with open(TEMP, "w") as tempfile:
+    with open(TEMPFILE, "w") as tempfile:
         if ST3:
             tempfile.write(text)
         else:
@@ -149,12 +149,12 @@ class SendSelectionToMaxCommand(sublime_plugin.TextCommand):
                                       {"to": line.begin()})
                 regiontext = self.view.substr(self.view.line(region))
                 _save_to_tempfile(regiontext)
-                if os.path.exists(TEMP):
+                if os.path.exists(TEMPFILE):
                     if currentfile:
                         if _is_maxscriptfile(currentfile):
-                            cmd = 'fileIn (@"%s")\r\n' % TEMP
+                            cmd = 'fileIn (@"%s")\r\n' % TEMPFILE
                         else:
-                            cmd = 'python.executefile (@"%s")\r\n' % TEMP
+                            cmd = 'python.executefile (@"%s")\r\n' % TEMPFILE
                         _send_cmd_to_max(cmd)
                     else:
                         sublime.error_message(NO_FILE)

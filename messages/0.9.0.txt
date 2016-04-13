@@ -8,14 +8,10 @@ Use Sublime for MAXScript Development with 3ds Max.
 
 Website:
 
-    https://github.com/cb109/sublime3dsmax
+    https://github.org/cb109/sublime3dsmax
 
 
 Changelog:
-
-    0.9.2
-        - feat : Add command to browse the online maxscript help for the
-                 currently selected maxscript code.
 
     0.9.0
         - feat : Add autocompletion for file content and maxscript API.

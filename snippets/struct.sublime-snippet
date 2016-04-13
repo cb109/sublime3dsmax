@@ -1,0 +1,11 @@
+<snippet>
+    <content><![CDATA[struct ${1:structName} (
+    ${2:-- Struct body.}
+)]]></content>
+    <!-- Optional: Tab trigger to activate the snippet -->
+    <tabTrigger>struct</tabTrigger>
+    <!-- Optional: Scope the tab trigger will be active in -->
+    <scope>source.maxscript</scope>
+    <!-- Optional: Description to show in the menu -->
+    <description>Struct Definition</description>
+</snippet>

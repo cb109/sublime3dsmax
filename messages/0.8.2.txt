@@ -8,7 +8,7 @@ Use Sublime for MAXScript Development with 3ds Max.
 
 Website:
 
-    https://bitbucket.org/cb109/sublime3dsmax
+    https://github.org/cb109/sublime3dsmax
 
 
 Changelog:
@@ -16,7 +16,7 @@ Changelog:
     0.8.2
         - feat : Add tags for automatic update propagation.
         - feat : Add install and update messages.
-        - feat : Readd block comment support and add spaces in between
+        - feat : Read block comment support and add spaces in between
                  the block start and end tokens.
         - bug  : Fix missing color coding for > and < operators.
 

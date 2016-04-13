@@ -171,8 +171,15 @@ class OpenMaxHelpCommand(sublime_plugin.TextCommand):
 
 
 class Completions(sublime_plugin.EventListener):
-    """Handle auto-completion from file content and the official API."""
+    """Handle auto-completion from file content and the official API.
 
+    To test this feature try typing the following in a .ms file:
+        polyOps.
+    It should offer autocompletions like:
+        polyOps.retriangulate
+        polyOps.autosmooth
+        ...
+    """
     completions_list = []
 
     def is_mxs(self, view):

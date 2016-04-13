@@ -1,5 +1,13 @@
-"""Send maxscript/python files or codelines to 3ds Max."""
+"""Send maxscript/python files or codelines to 3ds Max.
 
+This file currently implements 3 commands that you can bind to keys:
+
+    - SendFileToMaxCommand aka send_file_to_max
+    - SendSelectionToMaxCommand aka send_selection_to_max
+    - OpenMaxHelpCommand aka open_max_help
+
+See the README for details on how to use them.
+"""
 from __future__ import unicode_literals
 
 import os

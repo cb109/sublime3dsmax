@@ -40,7 +40,7 @@ To set shortcuts for the commands, edit your **Key Bindings - User** file and bi
 ```
 { "keys": ["ctrl+e"], "command": "send_file_to_max" }
 { "keys": ["shift+enter"], "command": "send_selection_to_max"}
-{ "keys": ["f1"], "command": "send_selection_to_max"}
+{ "keys": ["f1"], "command": "open_max_help"}
 ```
 
 Hope you like it!

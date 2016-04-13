@@ -3,8 +3,12 @@
 import os
 
 
+# The 3ds Max 2014 help (==16) seems the last one to allow for readable
+# query parameters to be added. For versions above, the docs seem to be
+# generated dynamically and using very human-unfriendly urls.
 ONLINE_MAXSCRIPT_HELP_URL = (
     r"http://docs.autodesk.com/3DSMAX/16/ENU/MAXScript-Help/index.html")
+
 APIPATH = os.path.dirname(os.path.realpath(__file__)) + "\maxscript.api"
 
 # Create the tempfile in "Packages" (ST2) / "Installed Packages" (ST3).

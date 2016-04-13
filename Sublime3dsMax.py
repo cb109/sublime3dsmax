@@ -3,6 +3,7 @@
 from __future__ import unicode_literals
 
 import os
+import webbrowser
 
 import sublime
 import sublime_plugin
@@ -13,33 +14,11 @@ ST3 = version >= 3000
 if ST3:
     from . import winapi
     from . import filters
+    from . import constants
 else:
     import winapi
     import filters
-
-
-APIPATH = os.path.dirname(os.path.realpath(__file__)) + "\maxscript.api"
-
-# Create the tempfile in "Packages" (ST2) / "Installed Packages" (ST3).
-TEMPFILE = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
-    "Send_to_3ds_Max_Temp.ms")
-
-TITLE_IDENTIFIER = "Autodesk 3ds Max"
-PREFIX = "Sublime3dsMax:"
-NO_MXS_FILE = PREFIX + " File is not a MAXScript file (*.ms, *.mcr)"
-NO_TEMP = PREFIX + " Could not write to temp file"
-NOT_SAVED = PREFIX + " File must be saved before sending to 3ds Max"
-MAX_NOT_FOUND = PREFIX + " Could not find a 3ds max instance."
-RECORDER_NOT_FOUND = PREFIX + " Could not find MAXScript Macro Recorder"
-NO_FILE = PREFIX + " No file currently open"
-
-python_command_template = """
-try
-    python.executefile (@"{filepath}")\r\n
-catch
-    python.run (@"{filepath}")\r\n
-"""
+    import constants
 
 
 def _is_maxscriptfile(filepath):
@@ -56,7 +35,7 @@ def _is_pythonfile(filepath):
 
 def _save_to_tempfile(text):
     """Store code in a temporary maxscript file."""
-    with open(TEMPFILE, "w") as tempfile:
+    with open(constants.TEMPFILE, "w") as tempfile:
         if ST3:
             tempfile.write(text)
         else:
@@ -72,9 +51,9 @@ def _send_cmd_to_max(cmd):
     evaluate the command.
 
     """
-    mainwindow = winapi.Window.find_window(TITLE_IDENTIFIER)
+    mainwindow = winapi.Window.find_window(constants.TITLE_IDENTIFIER)
     if mainwindow is None:
-        sublime.error_message(MAX_NOT_FOUND)
+        sublime.error_message(constants.MAX_NOT_FOUND)
         return
 
     minimacrorecorder = mainwindow.find_child(text=None, cls="MXS_Scintilla")
@@ -84,7 +63,7 @@ def _send_cmd_to_max(cmd):
     if minimacrorecorder is None:
         statuspanel = mainwindow.find_child(text=None, cls="StatusPanel")
         if statuspanel is None:
-            sublime.error_message(RECORDER_NOT_FOUND)
+            sublime.error_message(constants.RECORDER_NOT_FOUND)
             return
         minimacrorecorder = statuspanel.find_child(text=None, cls="RICHEDIT")
         # Verbatim strings (the @ at sign) are also not yet supported.
@@ -92,7 +71,7 @@ def _send_cmd_to_max(cmd):
         cmd = cmd.replace("\\", "\\\\")
 
     if minimacrorecorder is None:
-        sublime.error_message(RECORDER_NOT_FOUND)
+        sublime.error_message(constants.RECORDER_NOT_FOUND)
         return
 
     sublime.status_message('Send to 3ds Max: {cmd}'.format(
@@ -109,7 +88,7 @@ class SendFileToMaxCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         currentfile = self.view.file_name()
         if currentfile is None:
-            sublime.error_message(NOT_SAVED)
+            sublime.error_message(constants.NOT_SAVED)
             return
 
         if _is_maxscriptfile(currentfile):
@@ -117,11 +96,12 @@ class SendFileToMaxCommand(sublime_plugin.TextCommand):
             _send_cmd_to_max(cmd)
 
         elif _is_pythonfile(currentfile):
-            cmd = python_command_template.format(filepath=currentfile)
+            cmd = constants.PYTHON_COMMAND_TEMPLATE.format(
+                filepath=currentfile)
             _send_cmd_to_max(cmd)
 
         else:
-            sublime.error_message(NO_MXS_FILE)
+            sublime.error_message(constants.NO_MXS_FILE)
 
 
 class SendSelectionToMaxCommand(sublime_plugin.TextCommand):
@@ -151,17 +131,35 @@ class SendSelectionToMaxCommand(sublime_plugin.TextCommand):
                                       {"to": line.begin()})
                 regiontext = self.view.substr(self.view.line(region))
                 _save_to_tempfile(regiontext)
-                if os.path.exists(TEMPFILE):
+                if os.path.exists(constants.TEMPFILE):
                     if currentfile:
                         if _is_maxscriptfile(currentfile):
-                            cmd = 'fileIn (@"%s")\r\n' % TEMPFILE
+                            cmd = 'fileIn (@"%s")\r\n' % constants.TEMPFILE
                         else:
-                            cmd = 'python.executefile (@"%s")\r\n' % TEMPFILE
+                            cmd = ('python.executefile (@"%s")\r\n' %
+                                   constants.TEMPFILE)
                         _send_cmd_to_max(cmd)
                     else:
-                        sublime.error_message(NO_FILE)
+                        sublime.error_message(constants.NO_FILE)
                 else:
-                    sublime.error_message(NO_TEMP)
+                    sublime.error_message(constants.NO_TEMP)
+
+
+class OpenMaxHelpCommand(sublime_plugin.TextCommand):
+    """Open the online MAXScript help searching for the current selection."""
+
+    # Based on: https://forum.sublimetext.com/t/select-word-under-cursor-for-further-processing/10913  # noqa
+    def run(self, edit):
+        for region in self.view.sel():
+            if region.begin() == region.end():
+                word = self.view.word(region)
+            else:
+                word = region
+            if not word.empty():
+                key = self.view.substr(word)
+                query_param = "?query=" + key
+                url = constants.ONLINE_MAXSCRIPT_HELP_URL + query_param
+                webbrowser.open(url, new=0, autoraise=True)
 
 
 class Completions(sublime_plugin.EventListener):
@@ -175,12 +173,12 @@ class Completions(sublime_plugin.EventListener):
     def on_activated(self, view):
         if self.is_mxs(view) and not self.completions_list:
             self.completions_list = [line.rstrip('\n')
-                                     for line in open(APIPATH)]
+                                     for line in open(constants.APIPATH)]
 
     def on_query_completions(self, view, prefix, locations):
         if self.is_mxs(view):
             self.completions_list = [line.rstrip('\n')
-                                     for line in open(APIPATH)]
+                                     for line in open(constants.APIPATH)]
             comp_default = set(view.extract_completions(prefix))
             completions = set(list(self.completions_list))
             comp_default = comp_default - completions
@@ -193,8 +191,8 @@ class Completions(sublime_plugin.EventListener):
 
 def plugin_unloaded():
     """Perform cleanup work."""
-    if os.path.isfile(TEMPFILE):
+    if os.path.isfile(constants.TEMPFILE):
         try:
-            os.remove(TEMPFILE)
+            os.remove(constants.TEMPFILE)
         except OSError:
             pass

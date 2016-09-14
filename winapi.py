@@ -541,4 +541,5 @@ class Window(object):
 
     @classmethod
     def find_window(cls, text):
-        return cls.find_windows(text, return_on_first_match=True)
+        windows = cls.find_windows(text, return_on_first_match=True)
+        return windows[0] if windows else None

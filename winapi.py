@@ -25,10 +25,13 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 """
-Portions of code from winappdbg, i'm using only the parts we need, and ported them to Python 3.3
-Modified by Daniel Santana, all the copyrights belong to Mario Vilas
+Portions of code from winappdbg, using only the parts we need, ported to
+Python 3.3.
+
+Modified by Daniel Santana, all the copyrights belong to Mario Vilas.
 """
-from __future__ import print_function, absolute_import, unicode_literals, with_statement
+from __future__ import (print_function, absolute_import,
+                        unicode_literals, with_statement)
 
 import ctypes
 
@@ -95,7 +98,7 @@ WM_SETTEXT = 0x000C
 WM_KEYDOWN = 0x0100
 WM_KEYUP = 0x0101
 WM_CHAR = 0x0102  # The alternative to WM_KEYDOWN
-VK_RETURN  = 0x0D  # Enter key
+VK_RETURN = 0x0D  # Enter key
 
 
 class GuessStringType(object):
@@ -253,7 +256,7 @@ class __EnumWndProc (__WindowEnumerator):
 
 # windows functions and constants
 # stuff for finding and analyzing UI Elements
-#EnumWindows = ctypes.windll.user32.EnumWindows
+# EnumWindows = ctypes.windll.user32.EnumWindows
 def EnumWindows():
     _EnumWindows = windll.user32.EnumWindows
     _EnumWindows.argtypes = [WNDENUMPROC, LPARAM]
@@ -291,7 +294,8 @@ def EnumChildWindows(hWndParent=NULL):
     SetLastError(ERROR_SUCCESS)
     _EnumChildWindows(hWndParent, lpEnumFunc, NULL)
     errcode = GetLastError()
-    if errcode != ERROR_SUCCESS and errcode not in (ERROR_NO_MORE_FILES, ERROR_SUCCESS):
+    if errcode != ERROR_SUCCESS and errcode not in \
+            (ERROR_NO_MORE_FILES, ERROR_SUCCESS):
         raise ctypes.WinError(errcode)
     return EnumFunc.hwnd
 
@@ -386,18 +390,18 @@ GetClassName = GuessStringType(GetClassNameA, GetClassNameW)
 #   __in      HWND hWnd,
 #   __in_opt  LPCTSTR lpString
 # );
-def SetWindowTextA(hWnd, lpString = None):
+def SetWindowTextA(hWnd, lpString=None):
     _SetWindowTextA = windll.user32.SetWindowTextA
     _SetWindowTextA.argtypes = [HWND, LPSTR]
-    _SetWindowTextA.restype  = bool
+    _SetWindowTextA.restype = bool
     _SetWindowTextA.errcheck = RaiseIfZero
     _SetWindowTextA(hWnd, lpString)
 
 
-def SetWindowTextW(hWnd, lpString = None):
+def SetWindowTextW(hWnd, lpString=None):
     _SetWindowTextW = windll.user32.SetWindowTextW
     _SetWindowTextW.argtypes = [HWND, LPWSTR]
-    _SetWindowTextW.restype  = bool
+    _SetWindowTextW.restype = bool
     _SetWindowTextW.errcheck = RaiseIfZero
     _SetWindowTextW(hWnd, lpString)
 
@@ -410,19 +414,20 @@ SetWindowText = GuessStringType(SetWindowTextA, SetWindowTextW)
 #     WPARAM wParam,
 #     LPARAM lParam
 # );
-def SendMessageA(hWnd, Msg, wParam = 0, lParam = 0):
+def SendMessageA(hWnd, Msg, wParam=0, lParam=0):
     _SendMessageA = windll.user32.SendMessageA
     _SendMessageA.argtypes = [HWND, UINT, WPARAM, LPARAM]
-    _SendMessageA.restype  = LRESULT
+    _SendMessageA.restype = LRESULT
 
     wParam = MAKE_WPARAM(wParam)
     lParam = MAKE_LPARAM(lParam)
     return _SendMessageA(hWnd, Msg, wParam, lParam)
 
-def SendMessageW(hWnd, Msg, wParam = 0, lParam = 0):
+
+def SendMessageW(hWnd, Msg, wParam=0, lParam=0):
     _SendMessageW = windll.user32.SendMessageW
     _SendMessageW.argtypes = [HWND, UINT, WPARAM, LPARAM]
-    _SendMessageW.restype  = LRESULT
+    _SendMessageW.restype = LRESULT
 
     wParam = MAKE_WPARAM(wParam)
     lParam = MAKE_LPARAM(lParam)
@@ -444,11 +449,10 @@ def FindWindowA(lpClassName=None, lpWindowName=None):
     return hWnd
 
 
-
 def FindWindowW(lpClassName=None, lpWindowName=None):
     _FindWindowW = windll.user32.FindWindowW
     _FindWindowW.argtypes = [LPWSTR, LPWSTR]
-    _FindWindowW.restype  = HWND
+    _FindWindowW.restype = HWND
 
     hWnd = _FindWindowW(lpClassName, lpWindowName)
     if not hWnd:
@@ -516,8 +520,9 @@ class Window(object):
         """
         return SendMessage(self.get_handle(), uMsg, wParam, lParam)
 
-    @staticmethod
-    def find_window(text):
+    @classmethod
+    def find_windows(cls, text, return_on_first_match=False):
+        windows = []
         for w in [Window(h) for h in EnumWindows()]:
             window_text = w.get_text()
 
@@ -529,6 +534,11 @@ class Window(object):
                     pass
 
             if window_text is not None and text in window_text:
-                return w
+                windows.append(w)
+                if return_on_first_match:
+                    return windows
+        return windows
 
-        return None
+    @classmethod
+    def find_window(cls, text):
+        return cls.find_windows(text, return_on_first_match=True)

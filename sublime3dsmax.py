@@ -30,6 +30,14 @@ else:
     import constants
 
 
+# Holds the current 3ds Max window object that we send commands to.
+# It is filled automatically when sending the first command.
+mainwindow = None
+
+# Used to preselect the last 3ds Max window in the quick panel.
+last_index = 0
+
+
 def _is_maxscriptfile(filepath):
     """Return if the file uses one of the MAXScript file extensions."""
     name, ext = os.path.splitext(filepath)
@@ -60,7 +68,12 @@ def _send_cmd_to_max(cmd):
     evaluate the command.
 
     """
-    mainwindow = winapi.Window.find_window(constants.TITLE_IDENTIFIER)
+    global mainwindow
+
+    if mainwindow is None:
+        mainwindow = winapi.Window.find_window(
+            constants.TITLE_IDENTIFIER)
+
     if mainwindow is None:
         sublime.error_message(constants.MAX_NOT_FOUND)
         return
@@ -169,6 +182,49 @@ class OpenMaxHelpCommand(sublime_plugin.TextCommand):
                 query_param = "?query=" + key
                 url = constants.ONLINE_MAXSCRIPT_HELP_URL + query_param
                 webbrowser.open(url, new=0, autoraise=True)
+
+
+class SelectMaxInstanceCommand(sublime_plugin.TextCommand):
+    """Display a dialog of open 3ds Max instances to pick one.
+
+    The chosen instance is used from then on to send commands to.
+    """
+
+    def run(self, edit):
+        item2window = {}
+        candidates = winapi.Window.find_windows(
+            constants.TITLE_IDENTIFIER)
+        for window in candidates:
+            text = window.get_text()
+            normtext = text.replace("b'", "").replace("'", "")
+            item = ("{txt} ({hwnd})".format(txt=normtext,
+                                            hwnd=window.get_handle()))
+            item2window[item] = window
+
+        items = list(item2window.keys())
+
+        def on_select(idx):
+            if idx == -1:
+                return
+
+            global last_index
+            last_index = idx
+
+            item = items[idx]
+            global mainwindow
+            mainwindow = item2window[item]
+
+            sublime.message_dialog(constants.PREFIX +
+                                   " Now connected to: \n\n" + item)
+
+        def on_highlighted(idx):
+            print("highlighted", idx)
+
+        sublime.active_window().show_quick_panel(items,
+                                                 on_select,
+                                                 0,
+                                                 last_index,
+                                                 on_highlighted)
 
 
 class Completions(sublime_plugin.EventListener):

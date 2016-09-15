@@ -18,6 +18,7 @@ Changelog:
                  to talk to when multiple are available
         - feat : Change selection behaviour, single line selections are
                  now send to 3ds Max exactly as they are without expansion
+        - feat : Expose all commands via command palette
         - bug  : Fix Python scripts failing to execute
         - drop : Remove Py3dsMax compatibility
 

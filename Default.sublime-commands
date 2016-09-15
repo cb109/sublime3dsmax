@@ -1,0 +1,6 @@
+[
+    { "caption": "Sublime3dsMax: Send File to 3ds Max", "command": "send_file_to_max" },
+    { "caption": "Sublime3dsMax: Send Selection to 3ds Max", "command": "send_selection_to_max" },
+    { "caption": "Sublime3dsMax: Select 3ds Max Instance", "command": "select_max_instance" },
+    { "caption": "Sublime3dsMax: Open 3ds Max Help", "command": "open_max_help" },
+]

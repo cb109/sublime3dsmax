@@ -14,7 +14,7 @@ APIPATH = os.path.dirname(os.path.realpath(__file__)) + "\maxscript.api"
 # Create the tempfile in "Packages" (ST2) / "Installed Packages" (ST3).
 TEMPFILE = os.path.join(
     os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
-    "Send_to_3ds_Max_Temp.ms")
+    "send_to_3ds_max_temp.ms")
 
 TITLE_IDENTIFIER = "Autodesk 3ds Max"
 PREFIX = "Sublime3dsMax:"
@@ -25,9 +25,4 @@ MAX_NOT_FOUND = PREFIX + " Could not find a 3ds max instance."
 RECORDER_NOT_FOUND = PREFIX + " Could not find MAXScript Macro Recorder"
 NO_FILE = PREFIX + " No file currently open"
 
-PYTHON_COMMAND_TEMPLATE = """
-try
-    python.executefile (@"{filepath}")\r\n
-catch
-    python.run (@"{filepath}")\r\n
-"""
+PYTHON_COMMAND_TEMPLATE = 'try(python.executefile (@"{filepath}"))catch (python.run (@"{filepath}"))\r\n'  # noqa

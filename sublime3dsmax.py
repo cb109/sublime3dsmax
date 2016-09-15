@@ -79,6 +79,15 @@ def _send_cmd_to_max(cmd):
         sublime.error_message(constants.MAX_NOT_FOUND)
         return
 
+    try:
+        mainwindow.find_child(text=None, cls="MXS_Scintilla")
+    except OSError:
+        # Window handle is invalid, 3ds Max has probably been closed.
+        # Call this function again and try to find one automatically.
+        mainwindow = None
+        _send_cmd_to_max(cmd)
+        return
+
     minimacrorecorder = mainwindow.find_child(text=None, cls="MXS_Scintilla")
     # If the mini macrorecorder was not found, there is still a chance
     # we are targetting an ancient Max version (e.g. 9) where the

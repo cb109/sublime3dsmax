@@ -1,10 +1,11 @@
 """Send maxscript/python files or codelines to 3ds Max.
 
-This is the main sublime plugin file. It currently implements 3 commands
+This is the main sublime plugin file. It currently implements 4 commands
 that you can bind to keys:
 
     - SendFileToMaxCommand aka send_file_to_max
     - SendSelectionToMaxCommand aka send_selection_to_max
+    - SelectMaxInstanceCommand aka select_max_instance
     - OpenMaxHelpCommand aka open_max_help
 
 See the README for details on how to use them.
@@ -18,8 +19,7 @@ import sublime
 import sublime_plugin
 
 # Import depending on Sublime version.
-version = int(sublime.version())
-ST3 = version >= 3000
+ST3 = int(sublime.version()) >= 3000
 if ST3:
     from . import winapi
     from . import filters
@@ -28,6 +28,15 @@ else:
     import winapi
     import filters
     import constants
+
+__version__ = "0.9.7"
+
+# Holds the current 3ds Max window object that we send commands to.
+# It is filled automatically when sending the first command.
+mainwindow = None
+
+# Used to preselect the last 3ds Max window in the quick panel.
+last_index = 0
 
 
 def _is_maxscriptfile(filepath):
@@ -39,7 +48,7 @@ def _is_maxscriptfile(filepath):
 def _is_pythonfile(filepath):
     """Return if the file uses a Python file extension."""
     name, ext = os.path.splitext(filepath)
-    return ext in (".py")
+    return ext in (".py",)
 
 
 def _save_to_tempfile(text):
@@ -60,9 +69,23 @@ def _send_cmd_to_max(cmd):
     evaluate the command.
 
     """
-    mainwindow = winapi.Window.find_window(constants.TITLE_IDENTIFIER)
+    global mainwindow
+
+    if mainwindow is None:
+        mainwindow = winapi.Window.find_window(
+            constants.TITLE_IDENTIFIER)
+
     if mainwindow is None:
         sublime.error_message(constants.MAX_NOT_FOUND)
+        return
+
+    try:
+        mainwindow.find_child(text=None, cls="MXS_Scintilla")
+    except OSError:
+        # Window handle is invalid, 3ds Max has probably been closed.
+        # Call this function again and try to find one automatically.
+        mainwindow = None
+        _send_cmd_to_max(cmd)
         return
 
     minimacrorecorder = mainwindow.find_child(text=None, cls="MXS_Scintilla")
@@ -100,17 +123,17 @@ class SendFileToMaxCommand(sublime_plugin.TextCommand):
             sublime.error_message(constants.NOT_SAVED)
             return
 
-        if _is_maxscriptfile(currentfile):
-            cmd = 'fileIn (@"{currentfile}")\r\n'.format(**locals())
-            _send_cmd_to_max(cmd)
+        is_mxs = _is_maxscriptfile(currentfile)
+        is_python = _is_pythonfile(currentfile)
 
-        elif _is_pythonfile(currentfile):
-            cmd = constants.PYTHON_COMMAND_TEMPLATE.format(
-                filepath=currentfile)
+        if is_mxs:
+            cmd = 'fileIn @"{0}"\r\n'.format(currentfile)
             _send_cmd_to_max(cmd)
-
+        elif is_python:
+            cmd = 'python.executeFile @"{0}"\r\n'.format(currentfile)
+            _send_cmd_to_max(cmd)
         else:
-            sublime.error_message(constants.NO_MXS_FILE)
+            sublime.error_message(constants.NO_SUPPORTED_FILE)
 
 
 class SendSelectionToMaxCommand(sublime_plugin.TextCommand):
@@ -119,39 +142,77 @@ class SendSelectionToMaxCommand(sublime_plugin.TextCommand):
     Selection is extended to full line(s).
 
     """
+    def expand(self, line):
+        """Expand selection to encompass whole line."""
+        self.view.run_command("expand_selection", {"to": line.begin()})
+
     def run(self, edit):
+        """Analyse selection and determine a method to send it to 3ds Max.
+
+        Single line maxscript commands can be send directly. Python
+        commands could, but since we wrap them we may get issues with
+        quotation marks or backslashes, so it is safer to send them via
+        a temporary file that we import. That is also the method to send
+        multiline code, since the mini macrorecorder does not accept
+        multiline input.
+        """
+        def get_mxs_tempfile_import():
+            return 'fileIn @"{0}"\r\n'.format(constants.TEMPFILE)
+
+        def get_python_tempfile_import():
+            return 'python.executeFile @"{0}"\r\n'.format(constants.TEMPFILE)
+
+        # We need the user to have an actual file opened so that we can
+        # derive the language from its file extension.
         currentfile = self.view.file_name()
-        for region in self.view.sel():
-            text = None
+        if not currentfile:
+            sublime.error_message(constants.NOT_SAVED)
+            return
 
-            # If nothing selected, send single line
-            if region.empty():
-                line = self.view.line(region)
-                text = self.view.substr(line)
-                cmd = '{text};'.format(**locals())
-                _send_cmd_to_max(cmd)
+        is_mxs = _is_maxscriptfile(currentfile)
+        is_python = _is_pythonfile(currentfile)
 
-            # Else send all lines where something is selected
-            # This only works by saving to a tempfile first,
-            # as the mini macro recorder does not accept multiline input
-            else:
-                line = self.view.line(region)
-                self.view.run_command("expand_selection",
-                                      {"to": line.begin()})
-                regiontext = self.view.substr(self.view.line(region))
-                _save_to_tempfile(regiontext)
-                if os.path.exists(constants.TEMPFILE):
-                    if currentfile:
-                        if _is_maxscriptfile(currentfile):
-                            cmd = 'fileIn (@"%s")\r\n' % constants.TEMPFILE
-                        else:
-                            cmd = ('python.executefile (@"%s")\r\n' %
-                                   constants.TEMPFILE)
-                        _send_cmd_to_max(cmd)
-                    else:
-                        sublime.error_message(constants.NO_FILE)
-                else:
+        regions = [region for region in self.view.sel()]
+        for region in regions:
+            line = self.view.line(region)
+            text = self.view.substr(line)
+
+            is_empty = region.empty()
+            is_singleline = len(text.split("\n")) == 1
+            is_multiline = not (is_empty or is_singleline)
+
+            if is_multiline:
+                self.expand(line)
+                _save_to_tempfile(text)
+                if not os.path.isfile(constants.TEMPFILE):
                     sublime.error_message(constants.NO_TEMP)
+                    return
+
+                if is_mxs:
+                    cmd = get_mxs_tempfile_import()
+                else:
+                    cmd = get_python_tempfile_import()
+
+                _send_cmd_to_max(cmd)
+                return
+            else:
+                if is_empty:
+                    self.expand(line)
+                    text = self.view.substr(self.view.line(region))
+                elif is_singleline:
+                    text = self.view.substr(region)
+
+                if is_mxs:
+                    cmd = '{0}\r\n'.format(text)
+                elif is_python:
+                    _save_to_tempfile(text)
+                    if not os.path.isfile(constants.TEMPFILE):
+                        sublime.error_message(constants.NO_TEMP)
+                        return
+                    cmd = get_python_tempfile_import()
+
+                _send_cmd_to_max(cmd)
+                return
 
 
 class OpenMaxHelpCommand(sublime_plugin.TextCommand):
@@ -169,6 +230,48 @@ class OpenMaxHelpCommand(sublime_plugin.TextCommand):
                 query_param = "?query=" + key
                 url = constants.ONLINE_MAXSCRIPT_HELP_URL + query_param
                 webbrowser.open(url, new=0, autoraise=True)
+
+
+class SelectMaxInstanceCommand(sublime_plugin.TextCommand):
+    """Display a dialog of open 3ds Max instances to pick one.
+
+    The chosen instance is used from then on to send commands to.
+    """
+    def run(self, edit):
+        item2window = {}
+        candidates = winapi.Window.find_windows(
+            constants.TITLE_IDENTIFIER)
+        for window in candidates:
+            text = window.get_text()
+            normtext = text.replace("b'", "").replace("'", "")
+            item = ("{txt} ({hwnd})".format(txt=normtext,
+                                            hwnd=window.get_handle()))
+            item2window[item] = window
+
+        items = list(item2window.keys())
+
+        def on_select(idx):
+            if idx == -1:
+                return
+
+            global last_index
+            last_index = idx
+
+            item = items[idx]
+            global mainwindow
+            mainwindow = item2window[item]
+
+            sublime.message_dialog(constants.PREFIX +
+                                   " Now connected to: \n\n" + item)
+
+        def on_highlighted(idx):
+            pass
+
+        sublime.active_window().show_quick_panel(items,
+                                                 on_select,
+                                                 0,
+                                                 last_index,
+                                                 on_highlighted)
 
 
 class Completions(sublime_plugin.EventListener):

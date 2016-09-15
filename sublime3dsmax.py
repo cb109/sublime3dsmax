@@ -19,8 +19,7 @@ import sublime
 import sublime_plugin
 
 # Import depending on Sublime version.
-version = int(sublime.version())
-ST3 = version >= 3000
+ST3 = int(sublime.version()) >= 3000
 if ST3:
     from . import winapi
     from . import filters
@@ -30,6 +29,7 @@ else:
     import filters
     import constants
 
+__version__ = "0.9.7"
 
 # Holds the current 3ds Max window object that we send commands to.
 # It is filled automatically when sending the first command.

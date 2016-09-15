@@ -18,11 +18,9 @@ TEMPFILE = os.path.join(
 
 TITLE_IDENTIFIER = "Autodesk 3ds Max"
 PREFIX = "Sublime3dsMax:"
-NO_MXS_FILE = PREFIX + " File is not a MAXScript file (*.ms, *.mcr)"
+NO_SUPPORTED_FILE = (PREFIX + " File type not supported, must be of: "
+                     "*.ms, *.mcr, *.mcr, *.mse, *.py")
 NO_TEMP = PREFIX + " Could not write to temp file"
 NOT_SAVED = PREFIX + " File must be saved before sending to 3ds Max"
 MAX_NOT_FOUND = PREFIX + " Could not find a 3ds max instance."
 RECORDER_NOT_FOUND = PREFIX + " Could not find MAXScript Macro Recorder"
-NO_FILE = PREFIX + " No file currently open"
-
-PYTHON_COMMAND_TEMPLATE = 'try(python.executefile (@"{filepath}"))catch (python.run (@"{filepath}"))\r\n'  # noqa

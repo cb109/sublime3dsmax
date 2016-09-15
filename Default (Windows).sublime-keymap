@@ -1,6 +1,6 @@
 [
     { "keys": ["ctrl+e"], "command": "send_file_to_max" },
-    { "keys": ["ctrl+shift+e"], "command": "select_max_instance" },
     { "keys": ["shift+enter"], "command": "send_selection_to_max"},
+    { "keys": ["ctrl+shift+e"], "command": "select_max_instance" },
     { "keys": ["f1"], "command" : "open_max_help"}
 ]

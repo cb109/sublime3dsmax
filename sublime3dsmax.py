@@ -47,7 +47,7 @@ def _is_maxscriptfile(filepath):
 def _is_pythonfile(filepath):
     """Return if the file uses a Python file extension."""
     name, ext = os.path.splitext(filepath)
-    return ext in (".py")
+    return ext in (".py",)
 
 
 def _save_to_tempfile(text):
@@ -189,7 +189,6 @@ class SelectMaxInstanceCommand(sublime_plugin.TextCommand):
 
     The chosen instance is used from then on to send commands to.
     """
-
     def run(self, edit):
         item2window = {}
         candidates = winapi.Window.find_windows(
@@ -218,7 +217,7 @@ class SelectMaxInstanceCommand(sublime_plugin.TextCommand):
                                    " Now connected to: \n\n" + item)
 
         def on_highlighted(idx):
-            print("highlighted", idx)
+            pass
 
         sublime.active_window().show_quick_panel(items,
                                                  on_select,

@@ -14,6 +14,7 @@ from __future__ import unicode_literals
 
 import os
 import webbrowser
+import zipfile
 
 import sublime
 import sublime_plugin
@@ -29,7 +30,7 @@ else:
     import filters
     import constants
 
-__version__ = "0.9.7"
+__version__ = "0.9.8"
 
 # Holds the current 3ds Max window object that we send commands to.
 # It is filled automatically when sending the first command.
@@ -37,6 +38,26 @@ mainwindow = None
 
 # Used to preselect the last 3ds Max window in the quick panel.
 last_index = 0
+
+
+def _get_api_lines():
+    """Read the mxs API definition file and return as a list of lines."""
+    def get_decoded_lines(file_obj):
+        content = file_obj.read()
+        try:
+            content = content.decode("utf-8")
+        except UnicodeDecodeError:
+            pass
+        return content.split("\n")
+
+    # Zipped .sublime-package as installed by package control.
+    if ".sublime-package" in constants.APIPATH:
+        apifile = os.path.basename(constants.APIPATH)
+        package = zipfile.ZipFile(os.path.dirname(constants.APIPATH), "r")
+        return get_decoded_lines(package.open(apifile))
+    # Expanded folder, e.g. during development.
+    else:
+        return get_decoded_lines(open(constants.APIPATH))
 
 
 def _is_maxscriptfile(filepath):
@@ -291,13 +312,11 @@ class Completions(sublime_plugin.EventListener):
 
     def on_activated(self, view):
         if self.is_mxs(view) and not self.completions_list:
-            self.completions_list = [line.rstrip('\n')
-                                     for line in open(constants.APIPATH)]
+            self.completions_list = _get_api_lines()
 
     def on_query_completions(self, view, prefix, locations):
         if self.is_mxs(view):
-            self.completions_list = [line.rstrip('\n')
-                                     for line in open(constants.APIPATH)]
+            self.completions_list = _get_api_lines()
             comp_default = set(view.extract_completions(prefix))
             completions = set(list(self.completions_list))
             comp_default = comp_default - completions

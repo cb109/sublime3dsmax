@@ -3,6 +3,8 @@ Sublime 3ds Max
 
 **Sends MAXScript/Python files or selected lines to 3ds Max.**
 
+![](https://media.giphy.com/media/l4FGyySBwndeeloic/giphy.gif)
+
 Benefit from Sublime as an editor without having to enter 3ds Max everytime you want to evaluate some code. Best used on a split- or two-monitor setup.
 
 The plugin works by iterating all opened windows and searching for *Autodesk 3ds Max* to find the MAXScript Listener handle, that then gets pasted the code or import command. 3ds Max is found and communicated with automatically. You can choose which one to talk to if there are multiple running instances of 3ds Max.

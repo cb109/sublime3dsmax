@@ -30,7 +30,7 @@ else:
     import filters
     import constants
 
-__version__ = "0.9.7"
+__version__ = "0.9.8"
 
 # Holds the current 3ds Max window object that we send commands to.
 # It is filled automatically when sending the first command.

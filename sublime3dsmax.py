@@ -15,6 +15,7 @@ from __future__ import unicode_literals
 import os
 import webbrowser
 import zipfile
+import re
 
 import sublime
 import sublime_plugin
@@ -135,6 +136,26 @@ def _send_cmd_to_max(cmd):
     minimacrorecorder = None
 
 
+def _get_max_version():
+    """ Try to determine the version of 3ds Max that we are interacting with.
+    """
+    global mainwindow
+    # default to 2018 help, this has the most updated docs and will filter to Maxscript results
+    max_version = "2018"
+
+    if mainwindow is None:
+        mainwindow = winapi.Window.find_window(
+            constants.TITLE_IDENTIFIER)
+
+    if mainwindow is not None:
+        wnd_text = mainwindow.get_text()
+        matches = re.findall(r"(?:Max )(2\d{3})", wnd_text)
+        if matches:
+            max_version = matches[-1]   # take the last match
+
+    return max_version
+
+
 class SendFileToMaxCommand(sublime_plugin.TextCommand):
     """Send the current file by using 'fileIn <file>'."""
 
@@ -249,7 +270,10 @@ class OpenMaxHelpCommand(sublime_plugin.TextCommand):
             if not word.empty():
                 key = self.view.substr(word)
                 query_param = "?query=" + key
-                url = constants.ONLINE_MAXSCRIPT_HELP_URL + query_param
+                max_version = _get_max_version()
+                url = constants.ONLINE_MAXSCRIPT_HELP_URL[max_version] + query_param
+                if max_version == "2018":
+                    url += r"&cg=Scripting%20%26%20Customization"
                 webbrowser.open(url, new=0, autoraise=True)
 
 

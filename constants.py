@@ -3,14 +3,11 @@
 import os
 
 
-# The 3ds Max 2014 help (==16) seems the last one to allow for Maxscript
-# specific searches via URL. For other versions below, the help docs have to
-# be manually filtered to show Maxscript results.
 ONLINE_MAXSCRIPT_HELP_URL = {
-    "2014": r"http://docs.autodesk.com/3DSMAX/16/ENU/MAXScript-Help/index.html", 
-    "2015": r"http://help.autodesk.com/view/3DSMAX/2015/ENU/index.html", 
-    "2016": r"http://help.autodesk.com/view/3DSMAX/2016/ENU/index.html", 
-    "2017": r"http://help.autodesk.com/view/3DSMAX/2017/ENU/index.html", 
+    "2014": r"http://docs.autodesk.com/3DSMAX/16/ENU/MAXScript-Help/index.html",  # noqa
+    "2015": r"http://help.autodesk.com/view/3DSMAX/2015/ENU/index.html",
+    "2016": r"http://help.autodesk.com/view/3DSMAX/2016/ENU/index.html",
+    "2017": r"http://help.autodesk.com/view/3DSMAX/2017/ENU/index.html",
     "2018": r"http://help.autodesk.com/view/3DSMAX/2018/ENU/index.html"
 }
 

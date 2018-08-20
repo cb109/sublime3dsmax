@@ -15,6 +15,7 @@ from __future__ import unicode_literals
 import os
 import webbrowser
 import zipfile
+import re
 
 import sublime
 import sublime_plugin
@@ -135,6 +136,25 @@ def _send_cmd_to_max(cmd):
     minimacrorecorder = None
 
 
+def _get_max_version():
+    """Try to determine the version of 3ds Max we are connected to."""
+    if mainwindow is None:
+        global mainwindow
+        mainwindow = winapi.Window.find_window(
+            constants.TITLE_IDENTIFIER)
+
+    # Default to 2018 help, this has the most updated docs and will
+    # filter to Maxscript results.
+    max_version = "2018"
+    window_text = mainwindow.get_text()
+    matches = re.findall(r"(?:Max )(2\d{3})", window_text)
+    if matches:
+        last_match = matches[-1]
+        max_version = last_match
+
+    return max_version
+
+
 class SendFileToMaxCommand(sublime_plugin.TextCommand):
     """Send the current file by using 'fileIn <file>'."""
 
@@ -247,10 +267,27 @@ class OpenMaxHelpCommand(sublime_plugin.TextCommand):
             else:
                 word = region
             if not word.empty():
-                key = self.view.substr(word)
-                query_param = "?query=" + key
-                url = constants.ONLINE_MAXSCRIPT_HELP_URL + query_param
+                keyword = self.view.substr(word)
+                url = self.get_query_help_url(keyword)
                 webbrowser.open(url, new=0, autoraise=True)
+
+    def get_query_help_url(self, keyword):
+        """Return a URL to the MAXScript help, looking for given keyword.
+
+        The docs may need special handling regarding filtering and query
+        parameters.
+
+        Test URL for Max 2018:
+
+        http://help.autodesk.com/view/3DSMAX/2018/ENU/index.html?query=polyOp&cg=Scripting%20%26%20Customization  # noqa
+        """
+        query_param = "?query=" + keyword
+        max_version = _get_max_version()
+        url = constants.ONLINE_MAXSCRIPT_HELP_URL[max_version] + query_param
+        if max_version == "2018":
+            # Make sure to search in a specific section of the docs.
+            url += r"&cg=Scripting%20%26%20Customization"
+        return url
 
 
 class SelectMaxInstanceCommand(sublime_plugin.TextCommand):

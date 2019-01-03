@@ -19,7 +19,6 @@ If you don't have Package Control installed, get it here: [Package Control](http
 1. In Sublime start *Package Control -> Install Package*
 2. Search for **Send to 3ds Max** and hit Enter to install
 
-
 How to install manually
 ------------------
 1. Download the repository
@@ -27,6 +26,11 @@ How to install manually
 3. Create a folder named *Send to 3ds Max*
 4. Extract the contents to the folder
 5. Restart Sublime
+
+
+Sublime Text Version
+------------------
+Support for Sublime Text 2 has been dropped with 0.11.0 and as such only ST3 is supported moving forward. If you really still have to use ST2 you can try to install an older version from Package Control or checkout a version tag manually.
 
 
 How to setup in Sublime

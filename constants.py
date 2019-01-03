@@ -8,12 +8,13 @@ ONLINE_MAXSCRIPT_HELP_URL = {
     "2015": r"http://help.autodesk.com/view/3DSMAX/2015/ENU/index.html",
     "2016": r"http://help.autodesk.com/view/3DSMAX/2016/ENU/index.html",
     "2017": r"http://help.autodesk.com/view/3DSMAX/2017/ENU/index.html",
-    "2018": r"http://help.autodesk.com/view/3DSMAX/2018/ENU/index.html"
+    "2018": r"http://help.autodesk.com/view/3DSMAX/2018/ENU/index.html",
+    "2018": r"http://help.autodesk.com/view/3DSMAX/2019/ENU/index.html",
 }
 
 APIPATH = os.path.dirname(os.path.realpath(__file__)) + "\maxscript.api"
 
-# Create the tempfile in "Packages" (ST2) / "Installed Packages" (ST3).
+# Create the tempfile in "Installed Packages".
 TEMPFILE = os.path.join(
     os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
     "send_to_3ds_max_temp.ms")

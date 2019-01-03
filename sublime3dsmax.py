@@ -13,25 +13,21 @@ See the README for details on how to use them.
 from __future__ import unicode_literals
 
 import os
+import re
 import webbrowser
 import zipfile
-import re
 
 import sublime
 import sublime_plugin
 
-# Import depending on Sublime version.
-ST3 = int(sublime.version()) >= 3000
-if ST3:
-    from . import winapi
-    from . import filters
-    from . import constants
-else:
-    import winapi
-    import filters
-    import constants
+from . import constants
+from . import filters
+from . import winapi
 
-__version__ = "0.9.8"
+
+__version__ = "0.11.0"
+
+DEFAULT_DOCS_VERSION = "2019"
 
 # Holds the current 3ds Max window object that we send commands to.
 # It is filled automatically when sending the first command.
@@ -76,11 +72,7 @@ def _is_pythonfile(filepath):
 def _save_to_tempfile(text):
     """Store code in a temporary maxscript file."""
     with open(constants.TEMPFILE, "w") as tempfile:
-        if ST3:
-            tempfile.write(text)
-        else:
-            text = text.encode("utf-8")
-            tempfile.write(text)
+        tempfile.write(text)
 
 
 def _send_cmd_to_max(cmd):
@@ -145,7 +137,7 @@ def _get_max_version():
 
     # Default to 2018 help, this has the most updated docs and will
     # filter to Maxscript results.
-    max_version = "2018"
+    max_version = DEFAULT_DOCS_VERSION
 
     if mainwindow is not None:
         window_text = mainwindow.get_text()
@@ -279,14 +271,14 @@ class OpenMaxHelpCommand(sublime_plugin.TextCommand):
         The docs may need special handling regarding filtering and query
         parameters.
 
-        Test URL for Max 2018:
+        Test URL for Max 2019:
 
-        http://help.autodesk.com/view/3DSMAX/2018/ENU/index.html?query=polyOp&cg=Scripting%20%26%20Customization  # noqa
+        http://help.autodesk.com/view/3DSMAX/2019/ENU/index.html?query=polyOp&cg=Scripting%20%26%20Customization  # noqa
         """
         query_param = "?query=" + keyword
         max_version = _get_max_version()
         url = constants.ONLINE_MAXSCRIPT_HELP_URL[max_version] + query_param
-        if max_version == "2018":
+        if max_version == DEFAULT_DOCS_VERSION:
             # Make sure to search in a specific section of the docs.
             url += r"&cg=Scripting%20%26%20Customization"
         return url

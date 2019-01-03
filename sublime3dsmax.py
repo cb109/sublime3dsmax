@@ -47,7 +47,7 @@ def _get_api_lines():
         content = file_obj.read()
         try:
             content = content.decode("utf-8")
-        except UnicodeDecodeError:
+        except (UnicodeDecodeError, AttributeError):
             pass
         return content.split("\n")
 
@@ -138,19 +138,21 @@ def _send_cmd_to_max(cmd):
 
 def _get_max_version():
     """Try to determine the version of 3ds Max we are connected to."""
+    global mainwindow
     if mainwindow is None:
-        global mainwindow
         mainwindow = winapi.Window.find_window(
             constants.TITLE_IDENTIFIER)
 
     # Default to 2018 help, this has the most updated docs and will
     # filter to Maxscript results.
     max_version = "2018"
-    window_text = mainwindow.get_text()
-    matches = re.findall(r"(?:Max )(2\d{3})", window_text)
-    if matches:
-        last_match = matches[-1]
-        max_version = last_match
+
+    if mainwindow is not None:
+        window_text = mainwindow.get_text()
+        matches = re.findall(r"(?:Max )(2\d{3})", window_text)
+        if matches:
+            last_match = matches[-1]
+            max_version = last_match
 
     return max_version
 

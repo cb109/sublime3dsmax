@@ -53,5 +53,6 @@ class FilterManager(object):
                 completions = filtered
         return completions
 
+
 manager = FilterManager()
 manager.add_filter(DotFilter())

@@ -52,13 +52,45 @@ To set shortcuts for the commands, edit your **Key Bindings - User** file and bi
 { "keys": ["f1"], "command" : "open_max_help"}
 ```
 
+
+### Formatting of Inline Comments
+
+Some people prefer inline comments to start at the beginning of each line (I know I do), others like to have them indented to the first non-empty character of each line:
+
+```maxscript
+# This is the default formatting.
+-- function foobar = (
+--   LayerManager....
+--   for obj in objects do
+--     obj.wirecolor + ...
+-- )
+
+# Though you may prefer the comments to be indented.
+-- function foobar = (
+  -- LayerManager....
+  -- for obj in objects do
+    -- obj.wirecolor + ...
+-- )
+```
+
+It's a matter of taste and as such there is no right or wrong. If you prefer the comments to be indented, please remove the following block from `Comments.tmPreferences`:
+
+```xml
+<dict>
+    <key>name</key>
+    <string>TM_COMMENT_DISABLE_INDENT</string>
+    <key>value</key>
+    <string>yes</string>
+</dict>
+```
+
 Hope you like it!
 
 
 Contributing
 ------------
 
-If you want to contribute, please fork this repository, add your changes and submit a pull request for the ``develop`` branch. Please try to adhere to [PEP8](https://www.python.org/dev/peps/pep-0008/) and remember: commit early, commit often and use meaningful commit messages. Thanks :)
+If you want to contribute, please fork this repository, add your changes and submit a pull request for the ``develop`` branch. Please try to adhere to [PEP8](https://www.python.org/dev/peps/pep-0008/) and remember: commit early, commit often, make each commit do only one thing and use meaningful commit messages. Thanks :)
 
 Original authors:
 * [Christoph Bülter](http://www.cbuelter.de)
